@@ -318,6 +318,39 @@ sadakat istiyorsanız dokunmayın; arama korpusu kuruyorsanız açın.
 
 ## 8. Sorun giderme
 
+### Windows'ta başlatıcı takılırsa
+
+Bunlar gerçek bir kurulumda yaşanıp düzeltilen durumlar:
+
+**"Sanal ortam kurulamadı" / `ensurepip` izin hatası** — Betik artık düşmüyor,
+sistem Python'una geçip devam ediyor. Bu tam olarak çalışır bir yoldur; sanal
+ortam yalnızca bir kolaylıktır. Sebebi genellikle **yönetici komut isteminden**
+çalıştırmaktır: yönetici penceresi `System32`'de başlar ve geçici klasörlerde
+izin sorunu çıkarır. Normal bir komut istemi kullanın; betik yönetici olduğunuzu
+fark ederse uyarır.
+
+**"calistir.bat bulunamadı"** — ZIP'i açtığınız klasöre gerçekten girdiğinizden
+emin olun. Explorer'ın ZIP önizlemesinden çift tıklamak çalışmaz; önce **çıkarın**.
+Kalıcı ve kısa bir yol seçin, örneğin `C:\netsis-scraper`.
+
+**"Erişim engellendi" / çıktı yazılamıyor** — Betik hedef klasörü başlatmadan önce
+gerçekten yazarak sınar; yazamıyorsa çıktıyı `%USERPROFILE%\netsis-docs` altına
+yönlendirir ve bunu ekranda söyler. Kendiniz seçmek isterseniz:
+`calistir.bat --output C:\netsis-docs`
+
+**İş yarıda kesiliyor** — Tam indirme ~35 dakika sürer. Yapay zeka araçlarının
+komut çalıştırıcıları genelde 10 dakikada keser. Betiği **doğrudan bir komut
+isteminden** çalıştırın. Parçalı gitmek isterseniz `--limit 300` ile birkaç kez
+çalıştırın; her seferinde kaldığı yerden devam eder.
+
+**Türkçe karakterler bozuk / `UnicodeEncodeError`** — Başlatıcılar `PYTHONUTF8=1`
+ayarlıyor. Betiği atlayıp doğrudan `python -m netsis_scraper` çalıştırıyorsanız
+bu değişkeni kendiniz verin: `set PYTHONUTF8=1`
+
+### Diğer
+
+
+
 **"Hiyerarşi ağacı alınamadı"** — İnternet/VPN'i kontrol edin. Daha önce başarılı bir
 çalışma yaptıysanız script yerel kopyayı kullanır; zorlamak için `--offline-catalog`.
 
