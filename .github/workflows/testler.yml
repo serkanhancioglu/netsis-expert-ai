@@ -29,5 +29,8 @@ jobs:
           python -m pip install -r scripts/requirements.txt
           python -m pip install pytest
 
+      - name: Sozdizimi uyarilarini hataya cevir
+        run: python -W error::SyntaxWarning -W error::DeprecationWarning -m compileall -q -f .
+
       - name: Testleri calistir
         run: python -m pytest scripts/tests -q
