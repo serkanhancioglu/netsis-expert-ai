@@ -40,6 +40,17 @@ _BOOTSTRAP_RE = re.compile(
     r'vaadin\.initApplication\(\s*"([^"]+)"\s*,\s*(\{.*?\})\s*\)\s*;', re.DOTALL
 )
 
+#: Gecerli bir icerik adresi yalnizca su bicimde olur. Bicim kisiti olmadan, geri
+#: donus dalı yanlislikla bir tema ikonunu ya da baska bir varligi indirebilir.
+_STREAM_URL_RE = re.compile(
+    r"^https://[a-z0-9.-]*\bdys\.logo\.cloud/stream/\?tCid=[0-9a-fA-F-]{36}$"
+)
+
+#: Yanit govdesinden karakter kumesini okumak icin.
+_META_CHARSET_RE = re.compile(
+    rb"""<meta[^>]+charset\s*=\s*["']?\s*([A-Za-z0-9_.:-]+)""", re.IGNORECASE
+)
+
 
 # --------------------------------------------------------------------------------------
 # Hatalar
@@ -52,13 +63,22 @@ class FetchError(Exception):
 
 
 class TransientError(FetchError):
-    """Gecici sorun: yeniden denemeye deger (ag hatasi, 5xx, 429)."""
+    """Gecici sorun: yeniden denemeye deger (ag hatasi, 5xx, 429).
+
+    ``session_fault`` yalnizca sorunun oturumdan kaynaklandigi durumlarda dogrudur
+    (yetkilendirme yonlendirmesi, JSON olmayan UIDL yaniti, onyukleme betiginin
+    bulunamamasi). Yalnizca akis indirilirken olusan bir ag hatasi icin saglam bir
+    oturumu atmak gereksiz yere fazladan istek dogurur.
+    """
 
     retryable = True
 
-    def __init__(self, message: str, retry_after: float | None = None) -> None:
+    def __init__(
+        self, message: str, retry_after: float | None = None, *, session_fault: bool = False
+    ) -> None:
         super().__init__(message)
         self.retry_after = retry_after
+        self.session_fault = session_fault
 
 
 class PermanentError(FetchError):
@@ -205,13 +225,16 @@ class DysClient:
 
         if "/oauth/authorize" in response.url:
             raise TransientError(
-                "Sunucu oturum acma sayfasina yonlendirdi; oturum yeniden kurulacak."
+                "Sunucu oturum acma sayfasina yonlendirdi; oturum yeniden kurulacak.",
+                session_fault=True,
             )
 
         match = _BOOTSTRAP_RE.search(text)
         if not match:
             snippet = " ".join(text.split())[:200]
-            raise TransientError(f"Vaadin onyukleme betigi bulunamadi. Yanit basi: {snippet!r}")
+            raise TransientError(
+                f"Vaadin onyukleme betigi bulunamadi. Yanit basi: {snippet!r}", session_fault=True
+            )
 
         app_id = match.group(1)
         try:
@@ -260,13 +283,14 @@ class DysClient:
         content_type = (response.headers.get("Content-Type") or "").lower()
         if "json" not in content_type:
             raise TransientError(
-                f"UIDL yaniti JSON degil ({content_type or 'tur yok'}); oturum dusmus olabilir."
+                f"UIDL yaniti JSON degil ({content_type or 'tur yok'}); oturum dusmus olabilir.",
+                session_fault=True,
             )
         try:
             envelope = response.json()
             return json.loads(envelope["uidl"])
         except (ValueError, KeyError, TypeError) as exc:
-            raise TransientError(f"UIDL yaniti cozulemedi: {exc}") from exc
+            raise TransientError(f"UIDL yaniti cozulemedi: {exc}", session_fault=True) from exc
 
     @staticmethod
     def _extract_stream_url(uidl: dict) -> str:
@@ -307,10 +331,14 @@ class DysClient:
                     fallback.append(url)
 
         for candidate in (preferred, fallback):
+            # Bicimi tutmayan adayları ele: uyari ikonu, tema varligi vb.
+            valid = [url for url in candidate if _STREAM_URL_RE.match(url)]
+            if valid:
+                if len(valid) > 1:
+                    log.debug("Birden fazla icerik adresi bulundu, ilki kullanildi: %s", valid)
+                return valid[0]
             if candidate:
-                if len(candidate) > 1:
-                    log.debug("Birden fazla icerik adresi bulundu, ilki kullanildi: %s", candidate)
-                return candidate[0]
+                log.debug("Beklenen bicime uymayan kaynaklar elendi: %s", candidate)
 
         raise PermanentError("UIDL icinde indirilebilir bir icerik adresi bulunamadi.")
 
@@ -334,8 +362,7 @@ class DysClient:
             chunks.append(chunk)
         response.close()
         body = b"".join(chunks)
-        encoding = response.encoding or response.apparent_encoding or "utf-8"
-        return body, encoding
+        return body, _resolve_encoding(response, body)
 
     # -- ortak istek sarmalayicisi -------------------------------------------------------
 
@@ -390,8 +417,8 @@ class DysClient:
                 raise
             except TransientError as exc:
                 last_error = exc
-                # Oturumla ilgili her aksaklikta oturumu bastan kur.
-                self.reset_session()
+                if getattr(exc, "session_fault", False):
+                    self.reset_session()
                 if attempt >= self._max_attempts or self._stop.is_set():
                     break
                 delay = exc.retry_after if exc.retry_after is not None else _backoff(attempt)
@@ -428,6 +455,29 @@ def _parse_retry_after(value: str | None) -> float | None:
         return max(0.0, min(config.BACKOFF_CAP, float(value.strip())))
     except ValueError:
         return None
+
+
+def _resolve_encoding(response: requests.Response, body: bytes) -> str:
+    """Karakter kumesini guvenilir sirayla belirler.
+
+    ``requests`` bir ``text/*`` yanitinda charset yoksa ``ISO-8859-1`` varsayar; bu
+    Turkce metni sessizce bozar. ``apparent_encoding`` ise ek bir kutuphaneye
+    (chardet/charset_normalizer) baglidir ve kurulu olmayabilir. Bu yuzden sirayla:
+    Content-Type basligindaki gercek charset, govdedeki ``<meta charset>``, sonra UTF-8.
+    """
+    content_type = response.headers.get("Content-Type") or ""
+    if "charset=" in content_type.lower():
+        charset = content_type.lower().split("charset=", 1)[1].split(";")[0].strip(" \"'")
+        if charset:
+            return charset
+
+    match = _META_CHARSET_RE.search(body[:4096])
+    if match:
+        try:
+            return match.group(1).decode("ascii")
+        except UnicodeDecodeError:
+            pass
+    return "utf-8"
 
 
 def _short(doc_url: str) -> str:

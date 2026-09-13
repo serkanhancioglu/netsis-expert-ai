@@ -218,7 +218,11 @@ class MarkdownConverter:
             if not isinstance(child, Tag):
                 continue
             name = child.name.lower()
-            if name in _BLOCK_TAGS or name == "br":
+            if name == "br":
+                # Paragraf ici satir sonu: paragrafi bolme, satir sonunu koru.
+                # Yalnizca <br> iceren paragraflar _collapse ile zaten bosalir.
+                pending.append("\n")
+            elif name in _BLOCK_TAGS:
                 yield from flush()
                 yield from self._render_block(child, result)
             else:
@@ -421,26 +425,47 @@ class MarkdownConverter:
         return re.sub(r"\s*\n\s*", "<br>", text).strip()
 
     def _table_as_html(self, tag: Tag, result: ConversionResult) -> str:
-        """Karmasik tabloyu, gorselleri de cozerek sadelestirilmis HTML olarak birakir."""
+        """Karmasik tabloyu sadelestirilmis, okunabilir HTML olarak birakir.
+
+        Yalnizca GFM'in ifade edemedigi durumlarda (ic ice tablo, gercek hucre
+        birlesmesi) kullanilir. Sunum amacli her sey atilir: gomulu gorseller
+        dosya yoluna cevrilir, ``style``/``class`` gibi nitelikler ve anlamsiz
+        ``<span>`` sarmallari kaldirilir. Aksi halde 8.000 satirlik Confluence
+        curufu Markdown dosyasina sizar.
+        """
         clone = BeautifulSoup(str(tag), self.parser)
+
         for image in clone.find_all("img"):
             source = image.get("src") or ""
             if source.startswith("data:"):
-                markdown = self._image_markdown(source, image.get("alt") or "", result)
-                replacement = _extract_url(markdown)
-                if replacement:
-                    image["src"] = replacement
-                else:
+                replacement = _extract_url(
+                    self._image_markdown(source, image.get("alt") or "", result)
+                )
+                if not replacement:
                     image.decompose()
                     continue
-            for attribute in ("style", "class", "width", "height"):
-                image.attrs.pop(attribute, None)
+                image["src"] = replacement
+
+        # Anlam tasimayan sarmallari ac: span/font hicbir zaman bilgi tasimiyor,
+        # div ise yalnizca duzen kapsayicisi (content-wrapper, table-wrap ...).
+        for _ in range(3):                      # ic ice sarmallar icin birkac tur
+            wrappers = clone.find_all(["span", "font", "div"])
+            if not wrappers:
+                break
+            for wrapper in wrappers:
+                wrapper.unwrap()
+
+        keep = {"img": {"src", "alt"}, "a": {"href"}, "td": {"colspan", "rowspan"},
+                "th": {"colspan", "rowspan", "scope"}}
         for element in clone.find_all(True):
-            if element.name.lower() in {"table", "thead", "tbody", "tr", "th", "td"}:
-                for attribute in ("style", "class", "colgroup"):
-                    element.attrs.pop(attribute, None)
-        for element in clone.find_all(["colgroup", "col"]):
+            allowed = keep.get(element.name.lower(), set())
+            for attribute in list(element.attrs):
+                if attribute not in allowed:
+                    del element[attribute]
+
+        for element in clone.find_all(["colgroup", "col", "script", "style"]):
             element.decompose()
+
         table = clone.find("table")
         return str(table) if table is not None else ""
 

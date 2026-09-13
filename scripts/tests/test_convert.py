@@ -353,3 +353,53 @@ def test_long_or_sentence_like_bold_is_not_promoted():
         "</body></html>"
     )
     assert "## " not in promote(markup)
+
+
+# -- satir sonlari --------------------------------------------------------------------------
+
+def test_br_inside_paragraph_keeps_the_line_break():
+    """Kaynakta ~330 paragraf ici <br> var; paragrafi bolmek de silmek de yanlis."""
+    out = convert("<html><body><p>Birinci satir<br/>Ikinci satir</p></body></html>")
+    assert out == "Birinci satir\nIkinci satir"
+
+
+def test_paragraph_containing_only_br_is_dropped():
+    out = convert("<html><body><p>A</p><p><br/></p><p>B</p></body></html>")
+    assert out == "A\n\nB"
+
+
+def test_leading_br_does_not_create_a_blank_line():
+    assert convert("<html><body><p><br/>Metin</p></body></html>") == "Metin"
+
+
+def test_br_class_variant_behaves_the_same():
+    """`atl-forced-newline` sinifi ile duz <br> anlamca ayni; sinifa gore dallanma."""
+    a = convert("<html><body><p>A<br/>B</p></body></html>")
+    b = convert('<html><body><p>A<br class="atl-forced-newline"/>B</p></body></html>')
+    assert a == b == "A\nB"
+
+
+def test_cell_line_break_becomes_html_br_not_a_newline():
+    """GFM satiri tek fiziksel satir olmali; hucre ici satir sonu <br> olur."""
+    out = convert("<html><body><table><tr><td>A<br/>B</td><td>C</td></tr></table></body></html>")
+    assert "| A<br>B | C |" in out
+
+
+def test_empty_cell_renders_empty_not_as_stray_br():
+    out = convert(
+        "<html><body><table><tr><td>A</td><td><p><br/></p></td></tr></table></body></html>"
+    )
+    assert "| A |  |" in out
+    assert "<br>" not in out
+
+
+def test_paragraph_with_only_an_image_is_kept():
+    """308 paragraf yalnizca gorsel iceriyor; 'bos' sayilip silinmemeli."""
+    markup = '<html><body><p><img src="data:image/png;base64,iVBORw0KGgo="/></p></body></html>'
+    out = MarkdownConverter(image_mode="inline").convert(markup).markdown
+    assert out.startswith("![")
+
+
+def test_nbsp_only_paragraph_is_dropped():
+    out = convert("<html><body><p>A</p><p>&#160;&nbsp;</p><p>B</p></body></html>")
+    assert out == "A\n\nB"

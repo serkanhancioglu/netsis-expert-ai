@@ -186,8 +186,30 @@ düzelince kademeli olarak normale döner. `Retry-After` başlığına uyulur.
 6. **Kaldığı yerden devam.** Yeniden çalıştırma, indirilmişi tekrar indirmez.
 7. **Kimliğini bildirir.** `User-Agent` başlığında proje adresi yer alır.
 
+8. **Devre kesici.** Site bakıma girer ya da paylaşım bağlantıları topluca
+   geçersiz olursa, üst üste 12 hata veya son 50 dokümanda %40'ı aşan hata oranı
+   çalışmayı durdurur. 2.328 dokümanı tek tek deneyip her birinde 5 kez yeniden
+   denemek hem boşuna hem de siteye karşı kaba olurdu.
+
 `robots.txt` (13.09.2026 tarihinde kontrol edildi): `polaris.logo.cloud/robots.txt`
 yalnızca yorum satırlarından oluşur, hiçbir `Disallow` kuralı yoktur.
+
+### Veri bütünlüğü kontrolleri
+
+- **Başlık çapraz doğrulaması.** Tek bir HTTP oturumu yüzlerce dokümana hizmet
+  ettiği için, sunucu tarafında bir karışıklık A dokümanının gövdesini B'nin
+  dosyasına sessizce yazabilir. İndirilen belgenin `<h1>` başlığı ağaçtaki adla
+  karşılaştırılır (örneklemde 64/64 örtüşüyor); uyuşmazlık raporlanır.
+- **İçerik adresi biçim kısıtı.** Geçersiz bir bağlantıda sunucu `LbsBrowserFrame`
+  yerine bir uyarı ikonu döndürür. Script yalnızca
+  `https://dys.logo.cloud/stream/?tCid=<uuid>` biçimindeki adresleri kabul eder;
+  biçim kısıtı olmadan yanlışlıkla o ikon indirilirdi.
+- **Karakter kümesi merdiveni.** `requests`, charset'siz bir `text/*` yanıtında
+  `ISO-8859-1` varsayar ve Türkçe metni sessizce bozar. Script sırayla
+  `Content-Type` başlığındaki gerçek charset'e, gövdedeki `<meta charset>`'e, sonra
+  UTF-8'e bakar.
+- **Dosya farkında devam.** Durum veritabanı "tamam" dese bile hedef dosya
+  silinmiş ya da boşsa o doküman yeniden indirilir.
 
 ---
 

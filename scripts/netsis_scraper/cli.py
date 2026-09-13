@@ -248,6 +248,10 @@ class Runner:
         self.path_map = {node.doc_url: node.relative_path for node in nodes}
         self.report = RunReport(output_dir=settings.output_dir, started_at=time.time())
         self._lock = threading.Lock()
+        # Devre kesici: site tamamen bozulursa saatlerce bos yere istek atmayalim.
+        self._recent: list[bool] = []
+        self._consecutive_failures = 0
+        self._tripped = False
 
     # -- ic baglanti cozucusu -------------------------------------------------------------
 
@@ -280,10 +284,12 @@ class Runner:
         except ExpiredDocumentError as exc:
             self.store.mark(node.doc_url, "failed", error=f"Baglanti gecersiz: {exc}")
             log.error("GECERSIZ BAGLANTI: %s", label)
+            self._record_outcome(False)
             return "failed", label
         except FetchError as exc:
             self.store.mark(node.doc_url, "failed", error=str(exc))
             log.error("BASARISIZ: %s -> %s", label, exc)
+            self._record_outcome(False)
             return "failed", label
 
         converter = MarkdownConverter(
@@ -298,7 +304,20 @@ class Runner:
         except Exception as exc:  # donusturucu hatasi bir dokumani gomsun, calismayi degil
             self.store.mark(node.doc_url, "failed", error=f"Donusum hatasi: {exc!r}")
             log.exception("DONUSUM HATASI: %s", label)
+            self._record_outcome(False)
             return "failed", label
+
+        # Tek bir HTTP oturumu yuzlerce dokumana hizmet ettigi icin, sunucu tarafinda
+        # bir karisiklik A dokumaninin govdesini B'nin dosyasina sessizce yazabilir.
+        # Basliklar orneklemde 64/64 ortustugu icin bu ucuz bir butunluk kontrolu.
+        if converted.title and _normalise(converted.title) != _normalise(node.name):
+            log.warning(
+                "BASLIK UYUSMUYOR: agacta %r, indirilen belgede %r (%s). "
+                "Icerik yine de yazildi; dogrulamak isteyebilirsiniz.",
+                node.name, converted.title, label,
+            )
+            with self._lock:
+                self.report.title_mismatches += 1
 
         fetched_at = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
         text = (
@@ -339,7 +358,35 @@ class Runner:
             self.report.unresolved_links += converted.unresolved_links
             for name, count in converted.pseudo_tags.items():
                 self.report.pseudo_tags[name] = self.report.pseudo_tags.get(name, 0) + count
+        self._record_outcome(True)
         return "done", label
+
+    def _record_outcome(self, ok: bool) -> None:
+        """Basari/basarisizlik orani bozulursa butun calismayi durdurur.
+
+        Sunucu bakima girdiginde ya da paylasim baglantilari topluca gecersiz
+        oldugunda, 2.328 dokumani tek tek deneyip her birinde 5 kez yeniden
+        denemek hem bosuna hem de siteye karsi kabaca olur.
+        """
+        with self._lock:
+            self._recent.append(ok)
+            if len(self._recent) > 50:
+                self._recent.pop(0)
+            self._consecutive_failures = 0 if ok else self._consecutive_failures + 1
+
+            if self._tripped:
+                return
+            enough = len(self._recent) >= 25
+            failure_rate = 1 - (sum(self._recent) / len(self._recent)) if self._recent else 0.0
+            if self._consecutive_failures >= 12 or (enough and failure_rate > 0.4):
+                self._tripped = True
+                self.stop_event.set()
+                log.error(
+                    "DEVRE KESICI: son %d dokumanin %%%.0f'i basarisiz "
+                    "(ust uste %d hata). Calisma durduruldu; ilerleme kaydedildi. "
+                    "Site duzeldiginde ayni komutla kaldigi yerden devam edin.",
+                    len(self._recent), failure_rate * 100, self._consecutive_failures,
+                )
 
     def _assets_prefix(self, node: catalog.DocNode) -> str:
         """Gorsel klasorunun, bu dokumanin bulundugu yere gore goreli adresi."""
@@ -408,6 +455,18 @@ class Runner:
 # Giris noktasi
 # --------------------------------------------------------------------------------------
 
+def _normalise(text: str) -> str:
+    """Baslik karsilastirmasi icin bosluk ve buyuk-kucuk harf farkini yok sayar."""
+    return " ".join(str(text).split()).casefold()
+
+
+def _has_content(path: Path) -> bool:
+    try:
+        return path.is_file() and path.stat().st_size > 0
+    except OSError:
+        return False
+
+
 def _configure_logging(verbose: bool) -> None:
     logging.basicConfig(
         level=logging.DEBUG if verbose else logging.INFO,
@@ -448,6 +507,7 @@ def main(argv: list[str] | None = None) -> int:
         min_interval=args.min_interval,
         max_attempts=args.max_attempts,
         image_mode=args.images,
+        promote_bold_headings=args.promote_bold_headings,
         include_branches=not args.skip_branches,
         number_prefix=args.number_prefix,
         max_path_length=args.max_path_length,
@@ -542,6 +602,21 @@ def main(argv: list[str] | None = None) -> int:
             log.info("--retry-failed: %d hatali kayit yeniden denenecek.", runner.store.reset_failed())
 
         completed = set() if settings.force else runner.store.completed_urls()
+        # Durum veritabani "tamam" dese bile dosya silinmis olabilir; diski dogrula.
+        if completed and not settings.dry_run:
+            by_url = {node.doc_url: node for node in selected}
+            vanished = {
+                doc_url
+                for doc_url in completed
+                if doc_url in by_url
+                and not _has_content(settings.output_dir / by_url[doc_url].relative_path)
+            }
+            if vanished:
+                log.warning(
+                    "%d dokuman veritabaninda tamam gorunuyor ama dosyasi yok/bos; "
+                    "yeniden indirilecek.", len(vanished),
+                )
+                completed -= vanished
         todo = [node for node in selected if node.doc_url not in completed]
         if settings.retry_failed and not settings.force:
             todo = [
