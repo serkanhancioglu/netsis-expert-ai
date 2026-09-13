@@ -171,3 +171,185 @@ def test_image_extension_comes_from_magic_bytes_not_mime():
 def test_skip_mode_drops_images():
     out = convert('<html><body><p><img src="data:image/png;base64,iVBORw0KGgo="/></p></body></html>')
     assert "![" not in out
+
+
+# -- gomulu icerik ---------------------------------------------------------------------
+
+def test_iframe_inside_inline_context_is_not_lost():
+    """Kaynakta YouTube gomuluri <span><strong> icinde, yani satir ici baglamda.
+
+    Yalnizca blok baglaminda iframe arayan bir donusturucu 10 videoyu sessizce yutar.
+    """
+    markup = (
+        "<html><body><p><span><strong>"
+        '<iframe class="youtube-player" src="//www.youtube.com/embed/abc123XYZ?wmode=opaque">'
+        "</iframe></strong></span></p></body></html>"
+    )
+    result = MarkdownConverter(image_mode="skip").convert(markup)
+    assert result.embeds == 1
+    assert "https://www.youtube.com/embed/abc123XYZ" in result.markdown
+    assert "abc123XYZ" in result.markdown
+
+
+def test_protocol_relative_src_gets_https():
+    markup = '<html><body><div><iframe src="//example.com/x"></iframe></div></body></html>'
+    assert "https://example.com/x" in convert(markup)
+
+
+# -- ikinci kutu sistemi ----------------------------------------------------------------
+
+def test_bsv_callout_is_transparent_not_a_note_box():
+    """`bsv-callout` bir not kutusu DEGIL - sayfa bolumu kapsayicisidir.
+
+    Kaynakta icinde <h2> basliklari ve 28.000 karakterlik tablolar tasiyor. Alinti
+    blogu yapmak butun surum notu sayfasini tek bir alintiya cevirirdi.
+    """
+    markup = (
+        "<html><body><div class='bsv-callout bsv-callout-success'>"
+        "<h2>Surumde Yer Alan Yenilikler</h2>"
+        "<table><tr><th>Sira</th><th>Tanim</th></tr><tr><td>1</td><td>x</td></tr></table>"
+        "</div></body></html>"
+    )
+    out = convert(markup)
+    assert "> [!" not in out, "bolum kapsayicisi alintiya cevrilmemeli"
+    assert "## Surumde Yer Alan Yenilikler" in out
+    assert "| Sira | Tanim |" in out
+
+
+def test_heading_text_is_plain_not_double_emphasised():
+    """Kaynakta bolum basliklarinin cogu <strong> ile sarili."""
+    markup = "<html><body><h1>T</h1><h3><span><strong>Bolum</strong></span></h3></body></html>"
+    out = convert(markup)
+    assert "### Bolum" in out
+    assert "**" not in out
+
+
+def test_punctuation_only_emphasis_is_not_wrapped():
+    """Kaynakta yalnizca tirnak isaretini saran <em> etiketleri var; `*"*` bozuktur."""
+    out = convert('<html><body><p>Once<em>"</em>sonra</p></body></html>')
+    assert '*"*' not in out
+    assert '"' in out
+
+
+# -- alti cizili -------------------------------------------------------------------------
+
+def test_underline_is_preserved_as_html():
+    out = convert("<html><body><p><u>alti cizili</u></p></body></html>")
+    assert "<u>alti cizili</u>" in out
+
+
+# -- baslik satiri tespiti ------------------------------------------------------------------
+
+def test_bold_td_row_is_treated_as_header():
+    """Tablolarin bir bolumu hic <th> kullanmaz; ilk satiri kalin <td>'dir."""
+    markup = (
+        "<html><body><table>"
+        "<tr><td><p><strong>Ay Kodu</strong></p></td><td><p><strong>Hesap</strong></p></td></tr>"
+        "<tr><td>01</td><td>Kasa</td></tr>"
+        "</table></body></html>"
+    )
+    out = convert(markup)
+    assert "| Ay Kodu | Hesap |" in out
+    assert "| --- | --- |" in out
+    assert "| 01 | Kasa |" in out
+
+
+def test_plain_first_row_is_not_a_header():
+    markup = (
+        "<html><body><table>"
+        "<tr><td>01</td><td>Kasa</td></tr><tr><td>02</td><td>Banka</td></tr>"
+        "</table></body></html>"
+    )
+    out = convert(markup)
+    assert "|  |  |" in out          # bos baslik satiri
+    assert "| 01 | Kasa |" in out
+
+
+def test_repeated_thead_is_emitted_once():
+    markup = (
+        "<html><body><table>"
+        "<thead><tr><th>A</th><th>B</th></tr></thead>"
+        "<thead><tr><th>A</th><th>B</th></tr></thead>"
+        "<tbody><tr><td>1</td><td>2</td></tr></tbody>"
+        "</table></body></html>"
+    )
+    out = convert(markup)
+    assert out.count("| A | B |") == 1
+
+
+def test_colspan_one_is_not_treated_as_a_merge():
+    """Kaynakta colspan 792 kez geciyor ve hepsi "1" - yani anlamsiz.
+
+    Varligina bakan bir kod butun tablolari gereksiz yere HTML'e dusururdu.
+    """
+    markup = (
+        "<html><body><table>"
+        "<tr><th colspan='1'>A</th><th colspan='1'>B</th></tr>"
+        "<tr><td colspan='1'>1</td><td colspan='1'>2</td></tr>"
+        "</table></body></html>"
+    )
+    out = convert(markup)
+    assert "| A | B |" in out
+    assert "<table>" not in out
+
+
+# -- basliklar ------------------------------------------------------------------------------
+
+def test_all_heading_levels_are_kept_even_when_they_skip():
+    """Kaynakta h1 -> h4 -> h5 gibi atlayan seviyeler var; yeniden numaralandirma yapilmamali."""
+    markup = "<html><body><h1>Bir</h1><h4>Dort</h4><h5>Bes</h5></body></html>"
+    out = convert(markup)
+    assert "# Bir" in out
+    assert "#### Dort" in out
+    assert "##### Bes" in out
+
+
+def test_multiple_h1_keeps_all_but_first_is_the_title():
+    markup = "<html><body><h1>Ilk</h1><p>x</p><h1>Ikinci</h1></body></html>"
+    result = MarkdownConverter(image_mode="skip").convert(markup)
+    assert result.title == "Ilk"
+    assert result.markdown.count("# ") >= 2
+    assert "# Ikinci" in result.markdown
+
+
+# -- istege bagli baslik yukseltme ---------------------------------------------------------
+
+def promote(markup: str) -> str:
+    return MarkdownConverter(image_mode="skip", promote_bold_headings=True).convert(markup).markdown
+
+
+def test_bold_paragraph_promoted_only_when_enabled():
+    markup = "<html><body><h1>T</h1><p><strong>Ön Sorgulama</strong></p></body></html>"
+    assert "## Ön Sorgulama" not in convert(markup), "varsayilan olarak kapali olmali"
+    assert "## Ön Sorgulama" in promote(markup)
+
+
+def test_promotion_is_skipped_when_document_has_real_headings():
+    """Gercek bolum basligi varsa yapay baslik uretmek yapiyi bozar."""
+    markup = (
+        "<html><body><h1>T</h1><h2>Gercek Bolum</h2>"
+        "<p><strong>Kalin ama baslik degil</strong></p></body></html>"
+    )
+    out = promote(markup)
+    assert "## Gercek Bolum" in out
+    assert "## Kalin ama baslik degil" not in out
+    assert "**Kalin ama baslik degil**" in out
+
+
+def test_run_in_label_is_not_promoted():
+    """`**Esit Degil:** Raporda ...` bir satir basi etiketidir, baslik degil."""
+    markup = (
+        "<html><body><h1>T</h1>"
+        "<p><strong>Eşit Değil:</strong> Raporda listelenmeyecek kayitlar.</p></body></html>"
+    )
+    out = promote(markup)
+    assert "## " not in out
+    assert "**Eşit Değil:**" in out
+
+
+def test_long_or_sentence_like_bold_is_not_promoted():
+    markup = (
+        "<html><body><h1>T</h1><p><strong>Bu cümle bir başlık değildir ve nokta ile biter.</strong></p>"
+        "</body></html>"
+    )
+    assert "## " not in promote(markup)

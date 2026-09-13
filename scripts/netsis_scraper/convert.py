@@ -105,8 +105,10 @@ class ConversionResult:
     image_bytes: int = 0
     tables_gfm: int = 0
     tables_html: int = 0
+    embeds: int = 0
     internal_links: int = 0
     unresolved_links: int = 0
+    promoted_headings: int = 0
     pseudo_tags: dict[str, int] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
 
@@ -121,19 +123,30 @@ LinkResolver = Callable[[str], str | None]
 
 _BLOCK_TAGS = frozenset(
     "address article aside blockquote details div dl fieldset figcaption figure footer form "
-    "h1 h2 h3 h4 h5 h6 header hgroup hr li main nav ol p pre section table ul".split()
+    "h1 h2 h3 h4 h5 h6 header hgroup hr iframe li main nav ol p pre section table ul".split()
 )
 
-#: ``polaris-information-macro-<tur>`` son ekinin GFM uyari kutusuna esleniyor.
+#: Kutu turu son ekinin GFM uyari kutusuna eslenmesi.
 _CALLOUT_KINDS = {
     "information": ("NOTE", "Bilgi"),
+    "info": ("NOTE", "Bilgi"),
     "note": ("NOTE", "Not"),
+    "primary": ("NOTE", "Bilgi"),
     "tip": ("TIP", "Ipucu"),
     "success": ("TIP", "Basarili"),
     "warning": ("WARNING", "Uyari"),
     "error": ("CAUTION", "Dikkat"),
     "danger": ("CAUTION", "Dikkat"),
 }
+
+#: Yalnizca ``polaris-information-macro`` gercek bir not kutusudur.
+#:
+#: Kaynakta ``div.bsv-callout`` da var ama o bir not kutusu DEGIL: icinde ``<h2>``
+#: basliklari ve 28.000 karakterlik tablolar tasiyan bir sayfa bolumu kapsayicisi.
+#: Alinti blogu yapmak butun surum notu sayfasini tek bir alintiya cevirirdi; bu
+#: yuzden seffaf gecirilir.
+_CALLOUT_PREFIXES = ("polaris-information-macro-",)
+_CALLOUT_MARKERS = ("polaris-information-macro",)
 
 
 class MarkdownConverter:
@@ -147,12 +160,14 @@ class MarkdownConverter:
         image_mode: str = "files",
         assets_href_prefix: str = "",
         parser: str | None = None,
+        promote_bold_headings: bool = False,
     ) -> None:
         self.asset_store = asset_store
         self.link_resolver = link_resolver
         self.image_mode = image_mode          # files | inline | skip
         self.assets_href_prefix = assets_href_prefix
         self.parser = parser or _pick_parser()
+        self.promote_bold_headings = promote_bold_headings
 
     # -- giris noktasi -------------------------------------------------------------------
 
@@ -172,6 +187,9 @@ class MarkdownConverter:
             result.title = _collapse(soup.title.string)
 
         body = soup.body or soup
+        # Kaynakta gercek bolum basligi varsa yapay baslik uretmek zararlidir;
+        # yalnizca hic <h2>..<h6> ve tek <h1> olan belgelerde devreye girer.
+        self._promotable = self.promote_bold_headings and _has_no_real_sections(soup)
         blocks = list(self._render_children(body, result))
         result.markdown = _join_blocks(blocks)
         return result
@@ -216,7 +234,9 @@ class MarkdownConverter:
 
         if name in {"h1", "h2", "h3", "h4", "h5", "h6"}:
             level = int(name[1])
-            text = _collapse(self._render_inline(tag, result))
+            # Kaynaktaki bolum basliklarinin cogu <strong> ile sarili; aynen
+            # birakilirsa "### **Baslik**" gibi cift vurgu olusur.
+            text = _strip_emphasis(_collapse(self._render_inline(tag, result)))
             if text:
                 yield f"{'#' * level} {text}"
             return
@@ -244,6 +264,12 @@ class MarkdownConverter:
                 yield _prefix_lines(inner, "> ")
             return
 
+        if name == "iframe":
+            embed = self._embed_markdown(tag, result)
+            if embed:
+                yield embed
+            return
+
         if name == "div":
             callout = self._callout_kind(tag)
             if callout is not None:
@@ -255,19 +281,42 @@ class MarkdownConverter:
                 yield f"> [!{marker}]\n" + _prefix_lines(inner, "> ")
                 return
 
+        if name == "p" and getattr(self, "_promotable", False) and self._is_bold_only(tag):
+            text = _strip_emphasis(_collapse(self._render_inline(tag, result)))
+            if _looks_like_heading(text):
+                result.promoted_headings += 1
+                yield f"## {text}"
+                return
+
         # p, div ve diger genel bloklar
         yield from self._render_children(tag, result)
 
     @staticmethod
+    def _is_bold_only(tag: Tag) -> bool:
+        """Paragrafin tamaminin tek bir kalin oberkten ibaret olup olmadigini soyler.
+
+        Kalin metin baska icerikle birlikte gecerse (``**Esit Degil:** Raporda ...``)
+        bu bir baslik degil, satir basi etiketidir; oyle birakilir.
+        """
+        text = tag.get_text("", strip=True)
+        if not text:
+            return False
+        bold = "".join(
+            node.get_text("", strip=True) for node in tag.find_all(["strong", "b"])
+        )
+        return bold.replace(" ", "") == text.replace(" ", "")
+
+    @staticmethod
     def _callout_kind(tag: Tag) -> tuple[str, str] | None:
         classes = {c.lower() for c in (tag.get("class") or [])}
-        if "polaris-information-macro" not in classes:
+        if not classes.intersection(_CALLOUT_MARKERS):
             return None
         for css in classes:
-            if css.startswith("polaris-information-macro-"):
-                suffix = css[len("polaris-information-macro-"):]
-                if suffix in _CALLOUT_KINDS:
-                    return _CALLOUT_KINDS[suffix]
+            for prefix in _CALLOUT_PREFIXES:
+                if css.startswith(prefix):
+                    suffix = css[len(prefix):]
+                    if suffix in _CALLOUT_KINDS:
+                        return _CALLOUT_KINDS[suffix]
         return _CALLOUT_KINDS["information"]
 
     def _render_list(
@@ -328,14 +377,16 @@ class MarkdownConverter:
             if not cells:
                 continue
             for cell in cells:
-                span = _int_attr(cell, "colspan")
-                rspan = _int_attr(cell, "rowspan")
-                if span > 1 or rspan > 1:
+                # Kaynakta colspan hep "1" (anlamsiz); yalnizca gercek birlesme onemli.
+                if _int_attr(cell, "colspan") > 1 or _int_attr(cell, "rowspan") > 1:
                     yield self._table_as_html(tag, result)
                     result.tables_html += 1
                     return
             grid.append([self._cell_text(cell, result) for cell in cells])
-            header_flags.append(all(c.name.lower() == "th" for c in cells))
+            header_flags.append(
+                all(c.name.lower() == "th" for c in cells)
+                or _is_all_bold_row(cells)
+            )
 
         if not grid:
             return
@@ -346,6 +397,11 @@ class MarkdownConverter:
 
         if header_flags[0]:
             header, body = grid[0], grid[1:]
+            # Bazi tablolarda <thead> iki kez yineleniyor; ayni basligi tekrar basma.
+            while body and body[0] == header:
+                body = body[1:]
+            # Baslik satiri zaten kalin gosterilir; kaynaktaki ** isaretleri gereksiz.
+            header = [_strip_outer_bold(cell) for cell in header]
         else:
             header, body = [""] * width, grid
 
@@ -404,6 +460,10 @@ class MarkdownConverter:
             return self._image_markdown(node.get("src") or "", node.get("alt") or "", result)
         if name == "a":
             return self._link_markdown(node, result)
+        if name == "iframe":
+            # Gomulu videolar <span><strong> icinde, yani satir ici baglamda geciyor;
+            # yalnizca blok dalinda ele alan bir donusturucu bunlari sessizce yutar.
+            return self._embed_markdown(node, result)
 
         inner = "".join(self._render_inline(child, result) for child in node.children)
 
@@ -416,11 +476,24 @@ class MarkdownConverter:
         if name in {"code", "kbd", "samp", "tt"}:
             text = _collapse(html_lib.unescape(node.get_text("", strip=False)))
             return f"`{text}`" if text else ""
+        if name in {"u", "ins"}:
+            # Markdown'da alti cizili yok; HTML etiketi korunur (kaynakta 13 kez geciyor).
+            return f"<u>{inner}</u>" if inner.strip() else inner
         if name == "sub":
             return f"<sub>{inner}</sub>" if inner.strip() else ""
         if name == "sup":
             return f"<sup>{inner}</sup>" if inner.strip() else ""
         return inner
+
+    def _embed_markdown(self, tag: Tag, result: ConversionResult) -> str:
+        """``<iframe>`` gomulusunu tiklanabilir bir Markdown baglantisina cevirir."""
+        source = (tag.get("src") or "").strip()
+        if not source:
+            return ""
+        if source.startswith("//"):          # protokolsuz adres
+            source = "https:" + source
+        result.embeds += 1
+        return f"[{_embed_label(source)}]({_escape_destination(source)})"
 
     def _image_markdown(self, source: str, alt: str, result: ConversionResult) -> str:
         if self.image_mode == "skip" or not source:
@@ -490,14 +563,64 @@ def _prefix_lines(text: str, prefix: str) -> str:
     return "\n".join(prefix + line if line else prefix.rstrip() for line in text.split("\n"))
 
 
+_EMPHASIS_RE = re.compile(r"(\*{1,2}|~~)(?=\S)(.+?)(?<=\S)\1", re.DOTALL)
+
+
+def _strip_emphasis(text: str) -> str:
+    """Baslik metnindeki Markdown vurgu isaretlerini kaldirir."""
+    previous = None
+    while previous != text:
+        previous = text
+        text = _EMPHASIS_RE.sub(r"\2", text)
+    return text.strip()
+
+
 def _wrap(inner: str, marker: str) -> str:
     """Bicimlendirmeyi ic bosluklari disarida birakarak uygular (``** x **`` bozuktur)."""
     stripped = inner.strip()
     if not stripped:
         return inner if inner.strip("\n") else ""
+    # Kaynakta yalnizca tirnak isaretini saran <em> etiketleri var; bunlari
+    # bicimlendirmek gecersiz Markdown (`*"*`) uretir. Metni oldugu gibi birak.
+    if not any(ch.isalnum() for ch in stripped):
+        return inner
     leading = inner[: len(inner) - len(inner.lstrip())]
     trailing = inner[len(inner.rstrip()):]
     return f"{leading}{marker}{stripped}{marker}{trailing}"
+
+
+_OUTER_BOLD_RE = re.compile(r"^\*\*(.+)\*\*$", re.DOTALL)
+
+
+def _strip_outer_bold(cell: str) -> str:
+    """Baslik hucresini saran ``**`` isaretlerini kaldirir."""
+    match = _OUTER_BOLD_RE.match(cell.strip())
+    if match and "**" not in match.group(1):
+        return match.group(1).strip()
+    return cell
+
+
+def _is_all_bold_row(cells: list[Tag]) -> bool:
+    """Basligin ``<th>`` yerine kalin ``<td>`` ile yazildigi satiri tanir.
+
+    Kaynaktaki tablolarin bir bolumu hic ``<th>`` kullanmaz; ilk satiri
+    ``<td><p><strong>Baslik</strong></p></td>`` bicimindedir. Yalnizca ``<th>``
+    arayan bir tespit bu tablolari bassiz birakir.
+    """
+    if not cells or any(cell.name.lower() != "td" for cell in cells):
+        return False
+    has_text = False
+    for cell in cells:
+        text = cell.get_text("", strip=True)
+        if not text:
+            continue          # bos hucre basligi bozmaz
+        has_text = True
+        bold = "".join(
+            node.get_text("", strip=True) for node in cell.find_all(["strong", "b"])
+        )
+        if bold.replace(" ", "") != text.replace(" ", ""):
+            return False
+    return has_text
 
 
 def _int_attr(tag: Tag, name: str) -> int:
@@ -516,9 +639,41 @@ def _escape_destination(url: str) -> str:
     return url
 
 
+_YOUTUBE_RE = re.compile(r"(?:youtube\.com/(?:embed/|watch\?v=)|youtu\.be/)([A-Za-z0-9_-]{6,})")
+
+
+def _embed_label(source: str) -> str:
+    """Gomulu cerceve icin okunabilir bir baglanti metni uretir."""
+    match = _YOUTUBE_RE.search(source)
+    if match:
+        return f"Video izle (YouTube: {match.group(1)})"
+    return "Gomulu icerik"
+
+
 def _extract_url(markdown_image: str) -> str | None:
     match = re.search(r"\]\(([^)]+)\)", markdown_image or "")
     return match.group(1) if match else None
+
+
+def _has_no_real_sections(soup: BeautifulSoup) -> bool:
+    """Belgede gercek bolum basligi (h2..h6 ya da ikinci bir h1) var mi?"""
+    if soup.find(["h2", "h3", "h4", "h5", "h6"]) is not None:
+        return False
+    return len(soup.find_all("h1")) <= 1
+
+
+def _looks_like_heading(text: str) -> bool:
+    """Kalin bir paragrafin baslik gibi durup durmadigina karar verir.
+
+    Cumle sonu noktalamasiyla biten ya da uzun olan metinler basliga cevrilmez;
+    bunlar vurgulanmis cumlelerdir, bolum adi degil.
+    """
+    text = text.strip()
+    if not text or len(text) > 60 or len(text.split()) > 8:
+        return False
+    if text[-1] in ";:.,":
+        return False
+    return any(ch.isalnum() for ch in text)
 
 
 def _pick_parser() -> str:

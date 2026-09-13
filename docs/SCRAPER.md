@@ -129,17 +129,24 @@ Bu blok, RAG/arama indeksi kurarken hiyerarşiyi ve kaynağı kaybetmemenizi sa�
 | `--skip-branches` | Alt başlığı olan ara düğümleri indirme |
 | `--number-prefix` | Klasör/dosya adlarına sitedeki sırayı koruyan `001 ` öneki ekle |
 | `--keep-html` | Ham HTML kopyalarını da `_html/` altına kaydet |
+| `--promote-bold-headings` | Bölüm başlığı yerine kullanılan kalın paragrafları `## ` başlığına yükselt (varsayılan **kapalı**, aşağıya bakın) |
 
 ### Görseller
 
-| Seçenek | Sonuç | Yaklaşık boyut |
+| Seçenek | Sonuç | Tahmini toplam boyut |
 |---|---|---|
-| `--images files` (varsayılan) | `_assets/` altına ayrı dosyalar, tekrar edenler tekilleştirilir | ~90 MB |
-| `--images inline` | `data:` adresi olarak Markdown içinde kalır | ~530 MB, dosyalar okunaksız |
-| `--images skip` | Görsel hiç yazılmaz | ~25 MB |
+| `--images files` (varsayılan) | `_assets/` altına ayrı dosyalar, tekrar edenler tekilleştirilir | ≤ 370 MB görsel + 28 MB metin |
+| `--images inline` | `data:` adresi olarak Markdown içinde kalır | ~640 MB tek parça; RAG için kullanışsız |
+| `--images skip` | Görsel hiç yazılmaz | ~28 MB |
 
-> Ölçüm: 64 dokümanlık örneklemde 843 görselin yalnızca **210'u benzersizdi** (%75 tekrar).
-> Bu yüzden varsayılan kip görselleri içerik özetine (sha256) göre adlandırıp tekilleştirir.
+> **Bu sayılar nereden geliyor?** 64 dokümanlık gerçek örneklemde ölçüldü ve 2.328
+> dokümana doğrusal olarak ölçeklendi: 17,5 MB ham HTML → 0,77 MB Markdown (%4) ve
+> 210 benzersiz görsel / 10,2 MB. Görsel rakamı bir **üst sınırdır** — aynı ikonlar
+> dokümanlar arasında paylaşıldığı için gerçek toplam bunun altında kalır.
+>
+> Örneklemdeki 843 görselin yalnızca **210'u benzersizdi**. Tekilleştirme dosya
+> sayısını %75 azaltır ama bayt olarak kazancı sadece %11'dir — asıl faydası
+> tekrar çalıştırmalarda aynı sonucu vermesi ve yazma sayısını düşürmesidir.
 
 ### Ağ davranışı
 
@@ -207,12 +214,53 @@ eder: önce base64, sonra çift URL çözümü, sonra tek. Örneklemdeki 24 iç 
 tablosuna çevrilir; `colspan`/`rowspan` içerenler veriyi bozmamak için sadeleştirilmiş
 HTML olarak bırakılır (Markdown görüntüleyiciler ham HTML'i zaten işler).
 
-**Belge içi başlık yok.** Örneklemin tamamında `<h2>`…`<h6>` hiç kullanılmıyor; tek
-başlık `<h1>`. Yani anlamlı hiyerarşi belge içinde değil **ağaçta**; o da klasör
-yapısı ve ön bilgi bloğuyla korunur.
+**Başlıklar seyrek ama var.** 64 dokümanın 57'sinde tek başlık `<h1>`; ancak 7
+dokümanda `<h2>`–`<h5>` de kullanılıyor (toplam 45 başlık) ve seviyeler **atlıyor**
+(`h1 → h4 → h5`). Sadece `h1` işleyen bir dönüştürücü bu 45 bölüm başlığını düz
+paragraf yapardı. Script `h1`–`h6`'yı olduğu gibi korur, yeniden numaralandırmaz.
+İki dokümanda birden fazla `<h1>` var (6 ve 3 tane); ilki başlık sayılır, kalanlar
+gövde başlığı olarak kalır.
 
-**Bilgi kutuları.** `div.polaris-information-macro` blokları GFM uyarı kutusuna
-(`> [!NOTE]`, `> [!WARNING]`) çevrilir.
+**Gömülü videolar.** İçerik `<iframe class="youtube-player">` ile geliyor ve bunlar
+`<span><strong>` içinde, yani **satır içi** bağlamda. Sadece blok bağlamında iframe
+arayan bir dönüştürücü örneklemdeki 10 videoyu sessizce yutar. Script bunları
+`[Video izle (YouTube: …)](…)` bağlantısına çevirir.
+
+**İki ayrı bilgi kutusu sistemi.** Kaynakta hem `div.polaris-information-macro` hem
+de `div.bsv-callout` kullanılıyor. Yalnızca birine bakan bir dönüştürücü diğerini
+düz paragraf yapar. İkisi de GFM uyarı kutusuna (`> [!NOTE]`, `> [!TIP]`,
+`> [!WARNING]`) çevrilir.
+
+**`colspan` bir tuzak.** Örneklemde `colspan` 792 kez geçiyor ama **hepsi `colspan="1"`**
+— yani anlamsız. `rowspan` hiç yok. Varlığına bakan bir kod bütün tabloları gereksiz
+yere HTML'e düşürürdü; script değeri okuyup `> 1` mi diye bakar. Sonuç: 141 tablonun
+140'ı Markdown tablosu, 1'i (iç içe tablo içerdiği için) HTML.
+
+**Başlık satırı her zaman `<th>` değil.** Tabloların bir bölümü hiç `<th>` kullanmaz;
+ilk satırı kalın `<td>`'dir. Sadece `<th>` arayan bir tespit bu tabloları başlıksız
+bırakır. Script kalın-`<td>` satırını da başlık kabul eder.
+
+---
+
+## 7b. `--promote-bold-headings` — ne yapar, neden kapalı?
+
+Netsis rapor dokümanlarının hemen hepsi aynı iskeleti kullanır: *Ön Sorgulama,
+Kısıt, Sıralama, Ölçekleme, Yazıcı Seçenekleri*. Ama bunlar `<h2>` değil, kalın
+paragraf olarak yazılmış. Bu seçenek açıkken script onları `## ` başlığına
+yükseltir; arama ve RAG parçalama (chunking) için gezinmeyi belirgin biçimde
+kolaylaştırır.
+
+Ölçüm (64 dokümanlık örneklem): **30 dokümanda 152 başlık** yükseltilir.
+
+Yanlış pozitifleri önleyen üç kural:
+
+1. Dokümanda gerçek `<h2>`–`<h6>` ya da birden fazla `<h1>` varsa **hiç** uygulanmaz.
+2. Paragraf tamamen kalın olmalı. `**Eşit Değil:** Raporda listelenmeyecek…`
+   gibi satır başı etiketleri yükseltilmez.
+3. Metin 60 karakterden kısa, en fazla 8 kelime olmalı ve `; : . ,` ile bitmemeli.
+
+Kaynakta olmayan bir yapı ürettiği için **varsayılan olarak kapalıdır**. Ham
+sadakat istiyorsanız dokunmayın; arama korpusu kuruyorsanız açın.
 
 ---
 

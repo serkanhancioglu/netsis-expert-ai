@@ -65,5 +65,30 @@ Tablo              : 6 Markdown
 Korunan <tab>      : 4
 ```
 
-Bu hıza göre 1.936 dokümanın tamamı yaklaşık **28 dakika** sürer;
-görseller tekilleştirilmiş halde toplam ~90 MB yer kaplar.
+Ayrıca 64 dokümanlık örneklem üzerinde çevrimdışı dönüşüm doğrulaması:
+
+```
+843 görsel  ·  140 Markdown tablosu + 1 HTML tablosu (iç içe)
+72 bilgi kutusu  ·  10 YouTube gömülüsü  ·  112 korunan <tab>  ·  13 altı çizili
+başlıklar: h1×71  h2×16  h3×21  h4×2  h5×6
+bozuk Markdown üretimi: 0 (`*"*` yok, `## **x**` yok)
+```
+
+Bu sayıların tamamı, kaynağı bağımsız olarak yeniden ölçen çok ajanlı bir
+inceleme ile karşılaştırıldı ve birebir örtüştü.
+
+`--promote-bold-headings` açıkken 30 dokümanda 152 başlık yükseltilir.
+
+Bu hıza göre 2.328 dokümanın tamamı yaklaşık **35 dakika** sürer.
+
+Boyut tahmini (64 dokümanlık örneklemden doğrusal ölçekleme):
+
+| Ne | Tahmin |
+|---|---|
+| İndirilecek ham HTML (ağ trafiği) | ~640 MB |
+| Diskteki Markdown metni | ~28 MB |
+| Diskteki görseller (üst sınır) | ≤ 370 MB |
+
+Görsel rakamı üst sınırdır; aynı ikonlar dokümanlar arasında paylaşıldığından
+gerçek toplam bunun altında kalır. Görsel istemiyorsanız `--images skip` ile
+yalnızca ~28 MB metin indirirsiniz.

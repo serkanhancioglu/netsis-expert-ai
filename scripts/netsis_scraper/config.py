@@ -100,6 +100,7 @@ class Settings:
     min_interval: float = DEFAULT_MIN_INTERVAL
     max_attempts: int = DEFAULT_MAX_ATTEMPTS
     image_mode: str = "files"          # files | inline | skip
+    promote_bold_headings: bool = False  # kalin paragraflari baslik say
     include_branches: bool = True      # alt basligi olan dugumler de indirilsin mi
     number_prefix: bool = False        # klasor/dosya adlarina sira numarasi eklensin mi
     max_path_length: int = 240         # Windows MAX_PATH icin guvenli ust sinir

@@ -73,6 +73,8 @@ class AssetStore:
         self.enabled = enabled
         self.dry_run = dry_run
         self._known: dict[str, str] = {}
+        self._sizes: dict[str, int] = {}
+        self._refs: dict[str, int] = {}
         self._lock = threading.Lock()
         self.bytes_written = 0
         self.files_written = 0
@@ -105,6 +107,7 @@ class AssetStore:
 
         digest = hashlib.sha256(payload).hexdigest()
         with self._lock:
+            self._refs[digest] = self._refs.get(digest, 0) + 1
             existing = self._known.get(digest)
             if existing is not None:
                 self.duplicates_skipped += 1
@@ -116,6 +119,7 @@ class AssetStore:
 
         with self._lock:
             self._known.setdefault(digest, filename)
+            self._sizes[digest] = len(payload)
             self.bytes_written += len(payload)
             self.files_written += 1
         return filename, len(payload)
@@ -132,13 +136,41 @@ class AssetStore:
         finally:
             temporary.unlink(missing_ok=True)
 
+    def write_manifest(self) -> None:
+        """Gorsel dosyalarinin dokumu: ozet, uzanti, boyut, kac kez kullanildigi.
+
+        Dosya adlari saf icerik ozeti oldugu icin insan okunabilir baglam bu
+        dosyada tutulur; RAG ya da temizlik islerinde ise yarar.
+        """
+        if not self.enabled or self.dry_run or not self._known:
+            return
+        import json
+
+        with self._lock:
+            entries = {
+                digest: {
+                    "file": filename,
+                    "bytes": self._sizes.get(digest, 0),
+                    "references": self._refs.get(digest, 0),
+                }
+                for digest, filename in sorted(self._known.items())
+            }
+        self.assets_dir.mkdir(parents=True, exist_ok=True)
+        target = self.assets_dir / "manifest.json"
+        temporary = target.with_suffix(".json.tmp")
+        temporary.write_text(
+            json.dumps(entries, ensure_ascii=False, indent=1, sort_keys=True),
+            encoding="utf-8",
+        )
+        os.replace(temporary, target)
+
     def adopt_existing(self) -> int:
         """Onceki calismadan kalan gorselleri tanir; boylece tekrar yazilmazlar."""
         if not self.assets_dir.is_dir():
             return 0
         count = 0
         for path in self.assets_dir.iterdir():
-            if not path.is_file() or path.name.startswith("."):
+            if not path.is_file() or path.name.startswith(".") or path.suffix == ".json":
                 continue
             stem = path.stem
             if len(stem) == 20 and all(c in "0123456789abcdef" for c in stem):
@@ -149,6 +181,7 @@ class AssetStore:
                     continue
                 if digest.startswith(stem):
                     self._known.setdefault(digest, path.name)
+                    self._sizes[digest] = path.stat().st_size
                     count += 1
         if count:
             log.info("%d gorsel onceki calismadan devralindi.", count)

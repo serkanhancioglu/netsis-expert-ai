@@ -99,6 +99,15 @@ Ornekler:
         "--keep-html", action="store_true",
         help="Ham HTML kopyalarini da '_html' klasorune kaydet.",
     )
+    group.add_argument(
+        "--promote-bold-headings", action="store_true",
+        help=(
+            "Kaynakta bolum basligi yerine kullanilan kalin paragraflari ('On Sorgulama', "
+            "'Kisit', 'Siralama' gibi) '## ' basligina yukselt. Yalnizca belgede hic "
+            "gercek h2-h6 basligi yoksa uygulanir. Arama/RAG icin gezinmeyi kolaylastirir "
+            "ama kaynakta olmayan bir yapi uretir; bu yuzden varsayilan olarak kapalidir."
+        ),
+    )
 
     group = parser.add_argument_group("Gorseller")
     group.add_argument(
@@ -282,6 +291,7 @@ class Runner:
             link_resolver=self._resolver_for(node),
             image_mode=self.settings.image_mode,
             assets_href_prefix=self._assets_prefix(node),
+            promote_bold_headings=self.settings.promote_bold_headings,
         )
         try:
             converted = converter.convert(document.html)
@@ -323,6 +333,8 @@ class Runner:
             self.report.images_referenced += converted.images
             self.report.tables_gfm += converted.tables_gfm
             self.report.tables_html += converted.tables_html
+            self.report.embeds += converted.embeds
+            self.report.promoted_headings += converted.promoted_headings
             self.report.internal_links += converted.internal_links
             self.report.unresolved_links += converted.unresolved_links
             for name, count in converted.pseudo_tags.items():
@@ -374,6 +386,7 @@ class Runner:
             finally:
                 progress.finish()
 
+        self.assets.write_manifest()
         self.report.planned = len(todo)
         self.report.counts = self.store.counts()
         self.report.image_files = self.assets.files_written
