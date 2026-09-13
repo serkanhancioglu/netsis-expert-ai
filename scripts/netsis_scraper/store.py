@@ -191,6 +191,17 @@ class StateStore:
             ).fetchone()
         return row["markdown_hash"] if row else None
 
+    def all_hashes(self) -> dict[str, str]:
+        """Tamamlanmis her dokumanin govde ozeti (indeks icin)."""
+        with self._connect() as connection:
+            return {
+                row["doc_url"]: row["markdown_hash"]
+                for row in connection.execute(
+                    "SELECT doc_url, markdown_hash FROM documents "
+                    "WHERE status = 'done' AND markdown_hash IS NOT NULL"
+                )
+            }
+
     def completed_urls(self) -> set[str]:
         with self._connect() as connection:
             return {

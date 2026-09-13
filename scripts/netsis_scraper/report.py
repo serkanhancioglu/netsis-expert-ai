@@ -106,6 +106,10 @@ class RunReport:
     promoted_headings: int = 0
     title_mismatches: int = 0
     unchanged: int = 0
+    layout_blocks: int = 0
+    stubs: int = 0
+    manifest_rows: int = 0
+    manifest_path: Path | None = None
     internal_links: int = 0
     unresolved_links: int = 0
     pseudo_tags: dict[str, int] = field(default_factory=dict)
@@ -137,10 +141,15 @@ class RunReport:
             f"  Tablo              : {self.tables_gfm} Markdown, {self.tables_html} HTML olarak birakildi",
             f"  Gomulu video/cerceve: {self.embeds}",
             f"  Yukseltilen baslik : {self.promoted_headings}",
+            f"  Hizalanmis duzen blogu: {self.layout_blocks}",
+            f"  Kendi metni olmayan bolum: {self.stubs}",
             f"  Baslik uyusmazligi : {self.title_mismatches}",
             f"  Degismeyen (yazilmadi): {self.unchanged}",
             f"  Ic baglanti        : {self.internal_links} cozuldu, {self.unresolved_links} cozulemedi",
         ]
+        if self.manifest_path is not None:
+            lines.append(f"  Bilgi tabani indeksi: {self.manifest_rows} makale -> {self.manifest_path}")
+
         if self.pseudo_tags:
             detail = ", ".join(f"<{k}> x{v}" for k, v in sorted(self.pseudo_tags.items()))
             lines.append(f"  Korunan sahte etiket: {detail}")

@@ -2,7 +2,7 @@
 # Netsis dokuman indirici - macOS / Linux baslatici
 #
 # Kullanim:
-#   ./calistir.sh                 -> tamamini indirir (./netsis-docs klasorune)
+#   ./calistir.sh                 -> tamamini indirir (../knowledge-base/markdown)
 #   ./calistir.sh --limit 20      -> once 20 dokumanla dener
 #   ./calistir.sh --retry-failed  -> hatali kalanlari yeniden dener
 #
@@ -10,6 +10,10 @@
 
 set -euo pipefail
 cd "$(dirname "$0")"
+
+# Turkce karakterler icin UTF-8'i garantile (bazi sunucularda locale C olabilir).
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
 
 PYTHON="${PYTHON:-python3}"
 VENV=".venv"
@@ -37,4 +41,4 @@ python -m pip install --quiet --upgrade pip
 python -m pip install --quiet -r requirements.txt
 
 echo ">> Indirme basliyor. Durdurmak icin Ctrl-C; ayni komutla kaldigi yerden devam eder."
-exec python -m netsis_scraper --output ./netsis-docs "$@"
+exec python -m netsis_scraper --output ../knowledge-base/markdown "$@"

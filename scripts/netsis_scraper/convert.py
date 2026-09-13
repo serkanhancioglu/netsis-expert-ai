@@ -77,13 +77,20 @@ def protect_pseudo_tags(markup: str, counter: dict[str, int] | None = None) -> s
 # Markdown kacislama
 # --------------------------------------------------------------------------------------
 
-_INLINE_ESCAPE_RE = re.compile(r"([\\`*_\[\]<>])")
+_INLINE_ESCAPE_RE = re.compile(r"([\\`*\[\]<>])")
+
+#: Alt cizgi yalnizca kelime SINIRINDA vurgu baslatabilir. Kelime icindeki alt
+#: cizgiyi kacislamak, bu dokumantasyonun tasidigi ERP tanimlayicilarini
+#: (URUNMALZEME_MALIYET_TARIH_ARALIK, C_NEL gibi) aranamaz hale getirir;
+#: CommonMark zaten kelime ici alt cizgiyi vurgu saymaz.
+_UNDERSCORE_RE = re.compile(r"(?<![0-9A-Za-z])_|_(?![0-9A-Za-z])")
 _LINE_START_ESCAPE_RE = re.compile(r"^(\s*)([#>+-]|\d+[.)])(\s)")
 
 
 def escape_inline(text: str) -> str:
     """Markdown'da anlam tasiyan karakterleri kacislar (metni oldugu gibi gosterir)."""
-    return _INLINE_ESCAPE_RE.sub(r"\\\1", text)
+    text = _INLINE_ESCAPE_RE.sub(r"\\\1", text)
+    return _UNDERSCORE_RE.sub(lambda m: "\\" + m.group(0), text)
 
 
 def escape_line_start(line: str) -> str:
@@ -109,6 +116,7 @@ class ConversionResult:
     internal_links: int = 0
     unresolved_links: int = 0
     promoted_headings: int = 0
+    layout_blocks: int = 0
     pseudo_tags: dict[str, int] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
 
@@ -283,6 +291,16 @@ class MarkdownConverter:
                 if not inner:
                     return
                 yield f"> [!{marker}]\n" + _prefix_lines(inner, "> ")
+                return
+
+        if name in {"p", "div"} and _is_nbsp_layout(tag):
+            # Elle NBSP ile hizalanmis bilanco/tablo duzeni. Bosluklari sadelestirmek
+            # sutunlari yok eder ("STOK 1.200 SERMAYE 900" - hangi sayi hangi sutun?).
+            # Kod blogu olarak birak: hizalama korunur, kacislama uygulanmaz.
+            layout = _layout_text(tag)
+            if layout:
+                result.layout_blocks += 1
+                yield "```text\n" + layout + "\n```"
                 return
 
         if name == "p" and getattr(self, "_promotable", False) and self._is_bold_only(tag):
@@ -678,6 +696,34 @@ def _embed_label(source: str) -> str:
 def _extract_url(markdown_image: str) -> str | None:
     match = re.search(r"\]\(([^)]+)\)", markdown_image or "")
     return match.group(1) if match else None
+
+
+#: Bu kadar ardisik bolunmez bosluk, elle yapilmis sutun hizalamasi demektir.
+_NBSP_RUN_RE = re.compile("\u00a0(?:[ \t]*\u00a0){3,}")
+
+
+def _is_nbsp_layout(tag: Tag) -> bool:
+    """Blok, bolunmez bosluklarla elle hizalanmis bir duzen mi?
+
+    Kaynakta bilanco ornekleri boyle yazilmis: 66 ardisik NBSP'ye kadar cikan
+    diziler sutun olusturuyor. Normal metinde bu kadar uzun NBSP dizisi olmaz.
+    """
+    if tag.find("table") is not None or tag.find("img") is not None:
+        return False
+    return bool(_NBSP_RUN_RE.search(tag.get_text("", strip=False)))
+
+
+def _layout_text(tag: Tag) -> str:
+    """Duzen blogunun metnini hizalamayi bozmadan cikarir."""
+    text = html_lib.unescape(tag.get_text("", strip=False))
+    # Kod blogu icinde NBSP yerine normal bosluk daha tasinabilir; sayi korunur.
+    text = text.replace("\u00a0", " ").replace("\r\n", "\n").replace("\r", "\n")
+    lines = [line.rstrip() for line in text.split("\n")]
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return "\n".join(lines)
 
 
 def _has_no_real_sections(soup: BeautifulSoup) -> bool:

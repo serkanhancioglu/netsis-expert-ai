@@ -17,6 +17,7 @@ import datetime as dt
 import hashlib
 import logging
 import os
+import re
 import signal
 import sys
 import threading
@@ -35,6 +36,7 @@ from netsis_scraper.client import (
     RateLimiter,
 )
 from netsis_scraper.convert import MarkdownConverter
+from netsis_scraper.manifest import build_rows, write_manifest
 from netsis_scraper.report import Progress, RunReport, human_bytes
 from netsis_scraper.store import StateStore
 
@@ -101,6 +103,14 @@ Ornekler:
     group.add_argument(
         "--keep-html", action="store_true",
         help="Ham HTML kopyalarini da '_html' klasorune kaydet.",
+    )
+    group.add_argument(
+        "--manifest", type=Path, default=None,
+        help=(
+            "Bilgi tabani indeksini bu CSV dosyasina yaz. Depodaki "
+            "knowledge-base/metadata/articles-manifest.schema.json semasina uyar. "
+            "Cikti klasoru knowledge-base/markdown ise kendiliginden yazilir."
+        ),
     )
     group.add_argument(
         "--promote-bold-headings", action="store_true",
@@ -189,7 +199,14 @@ def _yaml_quote(value: str) -> str:
     return f'"{escaped}"'
 
 
-def build_front_matter(node: catalog.DocNode, *, product: str, fetched_at: str, source_bytes: int) -> str:
+#: Bu uzunlugun altinda kalan bir govde, yalnizca basliktan ibaret demektir.
+STUB_BODY_LIMIT = 100
+
+
+def build_front_matter(
+    node: catalog.DocNode, *, product: str, fetched_at: str, source_bytes: int,
+    is_stub: bool = False,
+) -> str:
     """Dokumanin kimligini ve agactaki yerini tasiyan YAML on bilgisi uretir."""
     breadcrumb = list(node.breadcrumb)
     lines = [
@@ -199,6 +216,9 @@ def build_front_matter(node: catalog.DocNode, *, product: str, fetched_at: str, 
         f"product: {_yaml_quote(product)}",
         f"depth: {node.depth}",
         f"is_section: {'true' if node.is_branch else 'false'}",
+        # 392 bolum sayfasinin cogunda kendi metni yok; ikisinde ise 30.000
+        # karakter var. RAG indeksinin bu ikisini ayirt edebilmesi gerekir.
+        f"is_stub: {'true' if is_stub else 'false'}",
         "breadcrumb:",
     ]
     lines.extend(f"  - {_yaml_quote(part)}" for part in breadcrumb)
@@ -340,6 +360,9 @@ class Runner:
                 self.report.title_mismatches += 1
 
         body = converted.markdown or f"# {node.name}\n\n*Bu bolumun kendi metni yok.*"
+        # Baslik satirini dusurup geriye anlamli metin kaliyor mu diye bak.
+        without_heading = re.sub(r"^#+ .*$", "", body, count=1, flags=re.M).strip()
+        is_stub = len(without_heading) < STUB_BODY_LIMIT
         # Ozet yalnizca govdeden hesaplanir. Zaman damgasi hesaba katilsaydi her
         # calismada degisir; hem degisiklik tespiti islevsizlesir hem de iki
         # calisma arasindaki `git diff` bastan asagi gurultu olurdu.
@@ -367,6 +390,7 @@ class Runner:
                     product=self.settings.product,
                     fetched_at=fetched_at,
                     source_bytes=document.byte_length,
+                    is_stub=is_stub,
                 )
                 + body
                 + "\n"
@@ -392,6 +416,9 @@ class Runner:
             self.report.tables_html += converted.tables_html
             self.report.embeds += converted.embeds
             self.report.promoted_headings += converted.promoted_headings
+            self.report.layout_blocks += converted.layout_blocks
+            if is_stub:
+                self.report.stubs += 1
             self.report.internal_links += converted.internal_links
             self.report.unresolved_links += converted.unresolved_links
             for name, count in converted.pseudo_tags.items():
@@ -505,6 +532,24 @@ def _has_content(path: Path) -> bool:
         return False
 
 
+def _force_utf8_streams() -> None:
+    """Konsol ciktisini UTF-8'e sabitler.
+
+    Dokumanlarda ok (U+2192), tirnak (U+2019/201C/201D), kisa cizgi (U+2013) ve
+    madde imi (U+2022) geciyor. Turkce Windows'ta varsayilan kod sayfasi cp1254
+    oldugu icin bu karakterler yazilirken UnicodeEncodeError firlatir - ozellikle
+    cikti bir dosyaya yonlendirildiginde, `chcp 65001` orayi kurtarmaz.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
+
 def _configure_logging(verbose: bool) -> None:
     logging.basicConfig(
         level=logging.DEBUG if verbose else logging.INFO,
@@ -536,6 +581,7 @@ def _install_signal_handlers(stop_event: threading.Event) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    _force_utf8_streams()
     _configure_logging(args.verbose)
 
     settings = config.Settings(
@@ -596,8 +642,16 @@ def main(argv: list[str] | None = None) -> int:
         rows = catalog.read_link_csv(args.csv)
         wanted = catalog.csv_doc_urls(rows)
         summary = catalog.annotate_csv_membership(nodes, wanted)
+        # Satir sayisi ile cozulen benzersiz adres sayisi ayni olmayabilir:
+        # iki satir ayni dokumana isaret ediyorsa ikincisi tekillenir.
+        if len(rows) != summary["csv_rows"]:
+            log.warning(
+                "CSV'de %d satir var ama %d benzersiz dokuman adresi cozuldu "
+                "(%d satir tekrar ediyor ya da cozulemedi).",
+                len(rows), summary["csv_rows"], len(rows) - summary["csv_rows"],
+            )
         log.info(
-            "CSV kapsamasi: %d satirin %d tanesi agacta bulundu; "
+            "CSV kapsamasi: %d benzersiz adresin %d tanesi agacta bulundu; "
             "agacta olup CSV'de olmayan %d dugum var.",
             summary["csv_rows"], summary["matched"], summary["tree_only"],
         )
@@ -625,6 +679,13 @@ def main(argv: list[str] | None = None) -> int:
         nodes, include_branches=settings.include_branches, csv_filter=args.only_csv
     )
     log.info("%d dokuman planlandi.", len(selected))
+
+    # Cikti dogrudan depodaki bilgi tabanina yaziliyorsa indeksi de oraya birak.
+    manifest_path = args.manifest
+    if manifest_path is None and settings.output_dir.name == "markdown":
+        candidate = settings.output_dir.parent / "metadata" / "articles-manifest.csv"
+        if candidate.parent.is_dir():
+            manifest_path = candidate
 
     runner = Runner(settings, selected, quiet=args.quiet)
     _install_signal_handlers(runner.stop_event)
@@ -686,6 +747,18 @@ def main(argv: list[str] | None = None) -> int:
 
         report = runner.run(todo)
         report.planned = len(todo)
+
+        if manifest_path and not settings.dry_run:
+            report.manifest_rows = write_manifest(
+                manifest_path,
+                build_rows(
+                    selected,
+                    product=settings.product,
+                    hashes=runner.store.all_hashes(),
+                ),
+            )
+            report.manifest_path = manifest_path
+
         print(report.render())
         report.write(settings.output_dir / "_rapor.txt")
 

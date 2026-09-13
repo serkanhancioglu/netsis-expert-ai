@@ -18,7 +18,13 @@ from netsis_scraper import config  # noqa: E402
 from netsis_scraper.cli import build_parser  # noqa: E402
 
 #: Bu secenekler bilerek Settings'e gitmez; dogrudan main() icinde kullanilirlar.
-_HANDLED_ELSEWHERE = {"quiet", "csv", "only_csv"}
+#: Yeni bir secenek eklerken ya Settings'e baglayin ya da buraya, sebebiyle birlikte.
+_HANDLED_ELSEWHERE = {
+    "quiet",      # yalnizca ilerleme gostergesine gecer
+    "csv",        # kapsama karsilastirmasi main() icinde yapilir
+    "only_csv",   # dugum secimi main() icinde yapilir
+    "manifest",   # indeks calisma bitince main() icinde yazilir
+}
 
 
 def _settings_block() -> str:
@@ -68,3 +74,8 @@ def test_force_and_refresh_are_distinct_settings():
     parser = build_parser()
     assert parser.parse_args(["--force"]).refresh is False
     assert parser.parse_args(["--refresh"]).force is False
+
+
+def test_manifest_option_is_accepted():
+    args = build_parser().parse_args(["--manifest", "kb/metadata/articles-manifest.csv"])
+    assert str(args.manifest).endswith("articles-manifest.csv")
