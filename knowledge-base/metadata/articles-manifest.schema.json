@@ -33,7 +33,7 @@
     },
     "relative_path": {
       "type": "string",
-      "pattern": "^knowledge-base/markdown/.+\\.md$"
+      "pattern": "^markdown/.+\\.md$"
     },
     "language": {
       "type": "string",
