@@ -1,4 +1,12 @@
-# Python
+# --- RAG pipeline uretilen ciktilar (main dalindan) ---
+knowledge-base/rag/chunks/*
+knowledge-base/rag/embeddings/*
+
+# Klasor yapisini koru
+!knowledge-base/rag/chunks/.gitkeep
+!knowledge-base/rag/embeddings/.gitkeep
+
+# --- Python ---
 __pycache__/
 *.py[cod]
 .venv/
@@ -6,13 +14,15 @@ venv/
 .pytest_cache/
 *.egg-info/
 
-# Scraper ciktisi ve calisma durumu
-netsis-docs/
-scripts/netsis-docs/
+# --- Kazima araci calisma durumu ---
+# Markdown ciktisinin kendisi depoya girer (knowledge-base/markdown/),
+# ama araca ait gecici durum dosyalari girmez.
 .netsis-scraper-state.sqlite3*
 .netsis-catalog.json
 _rapor.txt
+scripts/netsis-docs/
+netsis-docs/
 
-# Isletim sistemi
+# --- Isletim sistemi ---
 .DS_Store
 Thumbs.db
