@@ -18,6 +18,7 @@ import logging
 import os
 import re
 import threading
+import uuid
 from pathlib import Path
 
 log = logging.getLogger(__name__)
@@ -129,7 +130,8 @@ class AssetStore:
         target = self.assets_dir / filename
         if target.exists() and target.stat().st_size == len(payload):
             return  # onceki calismadan kalmis, ayni icerik
-        temporary = target.with_name(f".{filename}.{os.getpid()}.{threading.get_ident()}.tmp")
+        # Gecici ad hedeften kisa olmali; Windows'ta 260 karakter siniri var.
+        temporary = target.with_name(f".{uuid.uuid4().hex[:8]}.tmp")
         try:
             temporary.write_bytes(payload)
             os.replace(temporary, target)
@@ -157,7 +159,7 @@ class AssetStore:
             }
         self.assets_dir.mkdir(parents=True, exist_ok=True)
         target = self.assets_dir / "manifest.json"
-        temporary = target.with_suffix(".json.tmp")
+        temporary = target.with_name(f".{uuid.uuid4().hex[:8]}.tmp")
         temporary.write_text(
             json.dumps(entries, ensure_ascii=False, indent=1, sort_keys=True),
             encoding="utf-8",
