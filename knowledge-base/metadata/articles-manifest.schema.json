@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Netsis Article Manifest Entry",
+  "type": "object",
+  "required": [
+    "article_id",
+    "title",
+    "module",
+    "version",
+    "source_url",
+    "relative_path",
+    "language",
+    "last_updated"
+  ],
+  "properties": {
+    "article_id": {
+      "type": "string",
+      "description": "Makale için benzersiz kimlik"
+    },
+    "title": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "const": "3 Enterprise"
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "relative_path": {
+      "type": "string",
+      "pattern": "^/knowledge-base/markdown/.+\\.md$"
+    },
+    "language": {
+      "type": "string",
+      "enum": ["tr", "en"]
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Noktalı virgül ile ayrılmış etiketler"
+    }
+  },
+  "additionalProperties": false
+}
