@@ -1,0 +1,7 @@
+# RAG pipeline generated artifacts
+knowledge-base/rag/chunks/*
+knowledge-base/rag/embeddings/*
+
+# Keep folder structure
+!knowledge-base/rag/chunks/.gitkeep
+!knowledge-base/rag/embeddings/.gitkeep
