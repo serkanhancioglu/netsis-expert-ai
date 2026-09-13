@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Scraper ciktisi ve calisma durumu
+netsis-docs/
+scripts/netsis-docs/
+.netsis-scraper-state.sqlite3*
+.netsis-catalog.json
+_rapor.txt
+
+# Isletim sistemi
+.DS_Store
+Thumbs.db

@@ -1,0 +1,4 @@
+# Netsis Expert AI - dokuman kazima araci calisma bagimliliklari
+requests>=2.31,<3
+beautifulsoup4>=4.12,<5
+lxml>=5.1
