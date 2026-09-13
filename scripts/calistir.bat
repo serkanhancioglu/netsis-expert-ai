@@ -161,7 +161,9 @@ if "%SONUC%"=="0" (
     echo  Yeniden denemek icin: calistir.bat --retry-failed
   )
 )
-if defined HEDEF echo  Cikti klasoru: %HEDEF%
+if not defined HEDEF goto :bitir
+for %%I in ("%HEDEF%") do set "HEDEFTAM=%%~fI"
+echo  Cikti klasoru: %HEDEFTAM%
 
 :bitir
 echo.

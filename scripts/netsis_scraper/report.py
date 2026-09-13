@@ -121,6 +121,9 @@ class RunReport:
         failed = self.counts.get("failed", 0)
         pending = self.counts.get("pending", 0)
         skipped = self.counts.get("skipped", 0)
+        # 'Basarili' veritabanindaki toplamdir, bu calismanin sayisi degil;
+        # ikisi karistigi icin paydayla birlikte gosteriliyor.
+        total = done + failed + pending + skipped
 
         lines = [
             "",
@@ -129,8 +132,8 @@ class RunReport:
             "=" * 72,
             f"  Cikti klasoru      : {self.output_dir}",
             f"  Sure               : {human_duration(duration)}",
-            f"  Planlanan dokuman  : {self.planned}",
-            f"  Basarili           : {done}",
+            f"  Bu calismada islenen: {self.planned}",
+            f"  Toplam tamamlanan  : {done} / {total}",
             f"  Hatali             : {failed}",
             f"  Bekleyen           : {pending}",
             f"  Atlanan            : {skipped}",

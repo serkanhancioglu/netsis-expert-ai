@@ -115,5 +115,5 @@ case "$SONUC" in
     *)   echo " Bazi dokumanlar indirilemedi (cikis kodu $SONUC)."
          echo " Yeniden denemek icin: ./calistir.sh --retry-failed" ;;
 esac
-[ -n "$HEDEF" ] && echo " Cikti klasoru: $HEDEF"
+[ -n "$HEDEF" ] && echo " Cikti klasoru: $(cd "$HEDEF" 2>/dev/null && pwd || echo "$HEDEF")"
 exit "$SONUC"
