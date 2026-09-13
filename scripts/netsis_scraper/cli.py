@@ -23,6 +23,7 @@ import sys
 import threading
 import time
 import unicodedata
+import uuid
 from pathlib import Path
 
 import requests
@@ -244,6 +245,24 @@ def build_front_matter(
 # Atomik dosya yazimi
 # --------------------------------------------------------------------------------------
 
+def _temp_path(path: Path) -> Path:
+    """Ayni klasorde, hedef dosya adindan UZUN OLMAYAN bir gecici ad uretir.
+
+    Bu bir incelik degil, zorunluluk: Windows'ta yol siniri 260 karakterdir ve
+    derin bir agacta hedef 247 karakterse, ".<ad>.<pid>.<tid>.tmp" kalibi 264'e
+    cikip yazmayi imkansiz kilar. Gercek bir calismada tam olarak bu oldu.
+
+    Normalde ".<8 hex>.tmp" (13 karakter) kullanilir. Hedef adi bunu tasiyamayacak
+    kadar kisaysa ".tmp" eki birakilir ve ozet kisaltilir; boylece gecici ad her
+    zaman hedef kadar ya da ondan kisa kalir.
+    """
+    name = path.name
+    hex_length = min(8, len(name) - len(".") - len(".tmp"))
+    if hex_length >= 4:
+        return path.with_name(f".{uuid.uuid4().hex[:hex_length]}.tmp")
+    return path.with_name(f".{uuid.uuid4().hex[:max(3, len(name) - 1)]}")
+
+
 def write_atomic(path: Path, text: str) -> None:
     """Once gecici dosyaya, sonra ``os.replace`` ile hedefe yazar.
 
@@ -252,7 +271,7 @@ def write_atomic(path: Path, text: str) -> None:
     ihtimalini ortadan kaldirir.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.{os.getpid()}.{threading.get_ident()}.tmp")
+    temporary = _temp_path(path)
     try:
         with open(temporary, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(text)

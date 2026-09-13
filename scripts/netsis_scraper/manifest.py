@@ -12,6 +12,7 @@ import datetime as dt
 import logging
 import os
 import re
+import uuid
 from pathlib import Path
 from typing import Iterable, Sequence
 
@@ -130,7 +131,7 @@ def write_manifest(path: Path, rows: Iterable[dict[str, str]]) -> int:
     """Indeksi CSV olarak yazar; satir sonu ve alan sirasi kararlidir."""
     rows = list(rows)
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(path.name + ".tmp")
+    temporary = path.with_name(f".{uuid.uuid4().hex[:8]}.tmp")
     try:
         with open(temporary, "w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=list(FIELDS), lineterminator="\n")
