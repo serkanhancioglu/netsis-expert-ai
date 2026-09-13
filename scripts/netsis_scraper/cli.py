@@ -22,6 +22,7 @@ import signal
 import sys
 import threading
 import time
+import unicodedata
 from pathlib import Path
 
 import requests
@@ -520,9 +521,16 @@ class Runner:
 # Giris noktasi
 # --------------------------------------------------------------------------------------
 
+#: Turkce noktali/noktasiz I. Python'un casefold()'u "İ" harfini "i" + birlesen
+#: nokta olarak cozer; bu da duz "i" ile esit cikmaz. Karsilastirmadan once dort
+#: harfi tek bicime indirgemezsek "için" ile "İçin" farkli sanilir.
+_TURKISH_FOLD = str.maketrans({"İ": "i", "I": "i", "ı": "i", "i": "i"})
+
+
 def _normalise(text: str) -> str:
-    """Baslik karsilastirmasi icin bosluk ve buyuk-kucuk harf farkini yok sayar."""
-    return " ".join(str(text).split()).casefold()
+    """Baslik karsilastirmasi icin bosluk, buyuk-kucuk harf ve Turkce I farkini yok sayar."""
+    folded = unicodedata.normalize("NFC", str(text)).translate(_TURKISH_FOLD)
+    return " ".join(folded.split()).casefold()
 
 
 def _has_content(path: Path) -> bool:

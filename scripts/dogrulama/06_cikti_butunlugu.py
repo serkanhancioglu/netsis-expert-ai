@@ -13,8 +13,43 @@ import sqlite3
 import sys
 from pathlib import Path
 
-LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\((?!https?:|mailto:|#)([^)]+)\)")
-IMAGE_RE = re.compile(r"!\[[^\]]*\]\((?!https?:|data:)([^)]+)\)")
+#: CommonMark'da hedef iki bicimde yazilabilir:
+#:   [x](yol.md)              - bosluk ve parantez ICEREMEZ
+#:   [x](<yol (parantezli).md>) - <> icinde her sey olabilir
+#: Naif bir `\(([^)]+)\)` kalibi ikinci bicimi ilk parantezde keser ve saglam
+#: baglantilari kirik sanir. Kaynakta "Ekler (Stok)" gibi klasorler var.
+_HEDEF = r"\(\s*(?:<([^<>]*)>|([^()\s]*))"
+LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]" + _HEDEF)
+IMAGE_RE = re.compile(r"!\[[^\]]*\]" + _HEDEF)
+
+
+def _hedef_metni(match: re.Match) -> str:
+    """Eslesmeden hedefi cikarir (hangi bicim kullanildiysa)."""
+    return match.group(1) if match.group(1) is not None else (match.group(2) or "")
+
+#: Herhangi bir sema (http, https, ftp, mailto, data ...) mutlak adres demektir.
+#: Semayi ARANMADAN once <> sarmalayicisini soymak sart: Markdown, icinde bosluk
+#: olan adresleri <...> icine alir ve "(" hemen sonrasina bakan bir kontrol
+#: bunlari goreli yol saniyor.
+SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:")
+
+
+def _siniflandir(destination: str) -> tuple[str, str]:
+    """Baglanti hedefini turune gore ayirir.
+
+    Donen tur: 'yerel' (agac icinde cozulmeli), 'mutlak' (dis adres, bizi
+    ilgilendirmez) ya da 'kok-goreli'. Sonuncusu kaynakta kalmis Confluence
+    artigidir ('/display/...'): bir dosya agacinda hicbir zaman cozulemez,
+    ama bizim uretmedigimiz bir kaynak hatasidir.
+    """
+    target = destination.strip().strip("<>").strip()
+    if not target or target.startswith("#"):
+        return "mutlak", target
+    if SCHEME_RE.match(target):
+        return "mutlak", target
+    if target.startswith("/"):
+        return "kok-goreli", target
+    return "yerel", target.split("#", 1)[0]
 
 
 def planned_paths(root: Path) -> set[str]:
@@ -34,20 +69,29 @@ def main(output_dir: str) -> int:
         sys.exit(f"{root} bir klasor degil")
     planned = planned_paths(root)
 
-    images = broken_images = links = pending = broken = 0
+    images = broken_images = links = pending = broken = kok_goreli = 0
     examples: list[str] = []
 
     for md in root.rglob("*.md"):
         body = md.read_text(encoding="utf-8", errors="replace")
         for match in IMAGE_RE.finditer(body):
+            tur, hedef = _siniflandir(_hedef_metni(match))
+            if tur != "yerel":
+                continue
             images += 1
-            if not (md.parent / match.group(1).strip("<>")).resolve().exists():
+            if not (md.parent / hedef).resolve().exists():
                 broken_images += 1
                 if len(examples) < 8:
-                    examples.append(f"GORSEL {md.relative_to(root)} -> {match.group(1)}")
+                    examples.append(f"GORSEL {md.relative_to(root)} -> {_hedef_metni(match)}")
         for match in LINK_RE.finditer(body):
+            tur, hedef = _siniflandir(_hedef_metni(match))
+            if tur == "mutlak":
+                continue
+            if tur == "kok-goreli":
+                kok_goreli += 1
+                continue
             links += 1
-            target = (md.parent / match.group(1).strip("<>")).resolve()
+            target = (md.parent / hedef).resolve()
             if target.exists():
                 continue
             try:
@@ -59,10 +103,11 @@ def main(output_dir: str) -> int:
             else:
                 broken += 1
                 if len(examples) < 8:
-                    examples.append(f"BAGLANTI {md.relative_to(root)} -> {match.group(1)}")
+                    examples.append(f"BAGLANTI {md.relative_to(root)} -> {_hedef_metni(match)}")
 
     print(f"gorsel referansi : {images}, kirik: {broken_images}")
     print(f"goreli baglanti  : {links}")
+    print(f"kok-goreli (kaynakta olu Confluence artigi): {kok_goreli}")
     print(f"  planlanmis ama henuz indirilmemis: {pending}")
     print(f"  GERCEKTEN HATALI                 : {broken}")
     for e in examples:
