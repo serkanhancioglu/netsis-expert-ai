@@ -14,6 +14,14 @@ venv/
 .pytest_cache/
 *.egg-info/
 
+# --- Gomulu gorseller (KARAR BEKLIYOR) ---
+# 5.951 dosya, 419 MB. Depo gecmisine girdikten sonra cikarmak zordur, o yuzden
+# varsayilan olarak disarida. Markdown dosyalari bunlara goreli yolla atif
+# yapiyor; dahil etmek isterseniz asagidaki satiri silin ve commit edin, ya da
+# kendi makinenizde `python -m netsis_scraper --output knowledge-base/markdown`
+# calistirip yerel olarak uretin.
+knowledge-base/markdown/_assets/
+
 # --- Kazima araci calisma durumu ---
 # Markdown ciktisinin kendisi depoya girer (knowledge-base/markdown/),
 # ama araca ait gecici durum dosyalari girmez.

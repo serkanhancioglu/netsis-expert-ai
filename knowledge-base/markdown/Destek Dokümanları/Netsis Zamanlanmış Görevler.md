@@ -1,0 +1,228 @@
+---
+title: "Netsis Zamanlanmış Görevler"
+page_id: "66237130"
+product: "netsis-3-enterprise"
+depth: 2
+is_section: false
+is_stub: false
+breadcrumb:
+  - "Logo Netsis 3 Enterprise Bilgi Deposu"
+  - "Destek Dokümanları"
+  - "Netsis Zamanlanmış Görevler"
+breadcrumb_path: "Logo Netsis 3 Enterprise Bilgi Deposu / Destek Dokümanları / Netsis Zamanlanmış Görevler"
+source_url: "https://polaris.logo.cloud/docs/netsis-3-enterprise/detail/ZXh0ZXJuYWw_Y2lkPTVkMzIxN2ZlLTlmYjUtNGIwNi04ZjY1LTc5YjU0ZDVjYjVhNCZsaW5rPTE0NmFmZTU2LTk3ZjgtNDA1NS1iNWMyLTJmZWVjMGU1ZjAzZCZ0ZW5hbnRJZD1jZGQ4N2UxMy0zMDA5LTRkZDEtYTViOC0yYTAwNWMwZTU4ZGEmaGlkZU5hbWU9VHJ1ZQ"
+doc_url: "external?cid=5d3217fe-9fb5-4b06-8f65-79b54d5cb5a4&link=146afe56-97f8-4055-b5c2-2feec0e5f03d&tenantId=cdd87e13-3009-4dd1-a5b8-2a005c0e58da&hideName=True"
+slug: "netsis-zamanlanmis-gorevler_80089124_66237130.html"
+source_version: "2022-11-02T15:42:02.573+03:00"
+source_bytes: 2407548
+fetched_at: "2026-09-13T04:24:48+00:00"
+generator: "netsis-scraper 1.0.0"
+---
+# Netsis Zamanlanmış Görevler
+
+Netsis Zamanlanmış Görevler ile ilgili ayrıntılı bilgiye bu dokümandan ulaşabilirsiniz.
+
+> [!TIP]
+> İlgili özelliğin anlatımını içeren webinar kaydına ulaşmak için [tıklayınız.](https://register.gotowebinar.com/recording/3117619448740802318)
+
+Etrafımızdaki her şeyin sürekli hız kazandığı bu dönemde, işletmeler de zamana karşı yarışmaktadır. Zamanın en değerli kaynak olduğunun bilincindeki çalışanlar da mevcut işlerini daha pratik ve hızlı yoldan yapmanın tekniklerini aramaktadırlar. Katma değersiz tüm operasyonları elimine ederek aynı işi daha kısa sürede tamamlayabilme kabiliyetinin her zamankinden önemli olduğu bu dönemde, kullanılan teknolojilerin de çalışanların hız ihtiyacına uyum sağlayabilmesi ve hatta destek olması bir zorunluluk haline gelmiştir.
+
+Bu noktada Logo Netsis'in "Zamanlanmış Görevler" desteği kullanıcılarının ihtiyaçlarına karşılık vermektedir. Zamanlanmış Görevler eklentisi kullanılarak Netsis işlemlerinin ihtiyaca göre tek seferlik ya da belirlenen periyotlarla otomatik olarak çalışması sağlanabilmektedir. Böylece malzeme gereksinim planlama ya da cari hareket kontrolü gibi sürekli kullanılan fonksiyonların bir kez yapılacak ayara uygun olarak istenilen zamanlarda sistem tarafından çalıştırılması mümkün olmaktadır. Ayrıca görevler zamanlanmış olarak çalıştırılırken kullanıcıların cihaz başında olması gerekmemektedir. Yapılan ayarlara uygun olarak sistem tarafından çalıştırılacak görevler kullanıcının tanımlarına uygun şekilde tamamlanacak ve sonuçlar kullanıcıya raporlanacaktır. Böylece 7 gün 24 saat boyunca istenen görevler gerçekleştirilebilecek ve kullanıcı cihazını açtığı anda ilgili işleme ait sonuçları izleyebilecektir.
+
+Zamanlanmış görevler uygulamasının SSO kurulumunun yapıldığı sunucu üzerinden çalıştırılması desteği sayesinde de ileri üretim planlama gibi zaman alabilen ve performans gerektiren görevlerin kullanıcıya ait cihaz üzerinde hiçbir etki yaratmadan tamamlanması mümkün olabilmektedir. Zamanlanmış görevler uygulaması ile sürekli kullanılan raporların da otomatik olarak alınabilmesi desteklenmiştir. Böylelikle ihtiyaç duyulan raporlara kullanıcının istediği anda beklemek gerekmeksizin ulaşabilmesi sağlanmıştır. Logo Netsis Zamanlanmış Görevler desteği için bir paket kontrolü yoktur. 9.0.27 sürümü ve üzeri tüm Logo Netsis çözümleriyle birlikte kullanıma sunulmuştur. Bu doküman kapsamında anlatılan özelliklerden ek lisanslarla veya belirli paketlerle kullanılabilenler için uygulama içinde lisans ve paket kontrolü bulunmaktadır.
+
+#### Zamanlanmış Görevler Eklentisinin Kurulumu
+
+#### ![](../_assets/8bdcf7d26923dd64953a.png)Ekran Görüntüsü 1
+
+Zamanlanmış görevler eklentisini kullanabilmek için herhangi bir parametre ayarı yapılmasına ihtiyaç yoktur. İlgili eklentiyi kullanabilmek için Netsis masaüstünün sağ tarafında yer alan eklenti panelinin altındaki "Eklenti Ekle" butonuna basılmalı ve açılan menüdeki "Zamanlanmış Görevler" eklentisinin "Kullanımda" kutucuğu işaretlenmelidir. (Bkz. Ekran Görüntüsü 1) Ardından "Kaydet" butonuna tıklandığında "Zamanlanmış Görevler" eklentisi de eklenti panelinde görüntülenecektir. Zamanlanmış görevler uygulaması için eklenti ayarlarında herhangi bir işlem yapılmasına gerek bulunmamaktadır.
+
+#### Zamanlanmış Görevler Eklentisinin Kullanımı
+
+Zamanlanmış görevler eklentisinin kurulumu sonrası eklenti paneline iliştirilen uygulamaya tıklandığında boş bir pencere görüntülenecektir. (Bkz. Ekran Görüntüsü 2) Bu, henüz kayıtlı bir zamanlanmış görev tanımı bulunmamasından kaynaklanmaktadır.
+
+![](../_assets/524f8115ca7958e6ad50.png)
+
+**Ekran** **Görüntüsü** **2**
+
+Zamanlanmış bir görev kaydedebilmek için Ekran Görüntüsü 2'de yeşil kutucuk içinde gösterilen araç çubuğundaki "+" butonuna tıklanmalıdır. Bu butona tıklandığında açılacak "Zamanlanmış Görev Tanımı" ekranı kullanılarak yeni bir görev kaydı gerçekleştirilebilmektedir. (Bkz. Ekran Görüntüsü 3)
+
+![](../_assets/9486f2c9b65044fc4746.png)
+
+**Ekran** **Görüntüsü** **3**
+
+Zamanlanmış görev olarak kaydedilebilecek 5 farklı tipte görev bulunmaktadır. Bunlar; Script, Ön Tanımlı İşlem, Uygulama Çalıştır, Rapor Çalıştır ve REST'tir. Zamanlanmış Görev Tanımı ekranındaki "Aktif" parametresi ilgili zamanlanmış görevin aktif olarak kullanımda olup olmadığını belirtmek için kullanılmaktadır. Herhangi bir zamanlanmış görev kullanımdan kaldırılacağında, görevi tamamen silmektense "Aktif" parametresinin kapatılması değerlendirilebilir. Böylece ilgili zamanlanmış görevin daha sonra yeniden kullanıma alınma durumu oluşursa, tanımların yeniden yapılmasına gerek kalmadan yalnızca görevi aktifleştirmek yeterli olacaktır. "Açıklama" alanı ise zamanlanmış görevi kısaca tanımlamak için serbest şekilde kullanılabilecek bir alandır.
+
+"Öncül Görev" alanı ise zamanlanmış görevler eklentisinin çalışma şeklini tamamen etkileyen önemli bir alandır. Sistemde kayıtlı birden çok zamanlanmış görev bulunması durumunda bazı görevlerin çalışması, başka görevlerin çalışıp tamamlanmasına bağlı olabilir. Örneğin sistemde hem malzeme gereksinim planlama hem de gereksinim planlama oluşturma görevleri tanımlı olabilir. Standart kullanımda Malzeme Gereksinim Planlama görevi çalıştırılmadan önce, Gereksinim Planlama Oluşturma görevinin çalıştırılması gerekecektir. Bu durumda Malzeme Gereksinim Planlama görevinin "Öncül Görev" alanına Gereksinim Planlama Oluşturma görevi rehber alan kullanılarak tanımlanmalıdır. Ya da benzer şekilde zamanlanmış görev olarak alınan bir rapor olabilir ancak bu rapor alınmadan önce Döviz Kurları Güncelleme görevinin tamamlanması gerekebilir. Bu durumda da ilgili rapor görevinin öncül görevi Döviz Kurları Güncelleme olacaktır. Zamanlanmış görevler uygulaması her bir görev için "Öncül Görev" kontrolü yaparak çalışmaktadır. Bu yüzden eğer öncül görevi bulunan bir görevin de öncül görevi tanımlıysa, sistem görevleri bu sıraya uygun şekilde çalıştıracaktır. İç içe ne kadar öncül görev bulunursa bulunsun, sistem tarafından kontrol edilecek ve görevler tanımlara uygun sırayla çalıştırılacaktır.
+
+Ekranın alt bölümündeki "Başlangıç Tarihi" alanına, tanımlanmakta olan zamanlanmış görevin ilk kez çalıştırılacağı tarih ve saat bilgisi girilmelidir. Eğer ilgili zamanlanmış görev tekrar tekrar çalıştırılacak bir görevse, "Yineleme Sıklığı" alanı da kullanılmalıdır. Yineleme sıklığı alanında hiçbiri, her saat, her gün, her hafta, her ay, her oturum açılışı ve her oturum kapanışı olmak üzere 7 seçenek mevcuttur. Tekrarlı görevler için bu seçeneklerden "Hiçbiri" hariç uygun bir tanesi seçilmelidir. "Hiçbiri" seçimi tekrarlı olmayan, yalnızca bir kez çalıştırılacak görevler için kullanılmalıdır. "Hiçbiri" dışında bir seçim ile kaydedilen tekrarlı görevler için "Bitiş Tarihi" alanın doldurulması zorunludur. Bitiş tarihi alanına, ilgili zamanlanmış görevin hangi tarihe kadar tekrarlı olarak çalıştırılacağı bilgisi girilmelidir. Örneğin Ekran Görüntüsü 4'teki tanımda, ilgili görev 10 Haziran 2022 tarihine kadar her hafta tekrar tekrar çalıştırılacaktır.
+
+Ekrandaki tarih alanlarının hemen altında bulunan "Bilgilendirme Yönetimi" alanı ise, bir zamanlanmış görev çalıştırıldıktan sonra seçilen kullanıcılara bilgilendirme mesajı iletilebilmesi için kullanılan bir alandır. Bu alanda yer alan bildirim mesajı, e-posta ve SMS olmak üzere 3 farklı bildirim yönteminden kullanılmak istenenlerin önlerindeki seçim kutucukları işaretlenmelidir. "Bildirim Mesajı" yöntemi seçildiğinde, aşağıda detayları anlatılmış olan mesaj başlığı ve içeriği Netsis Bildirimi olarak ekranın sağ üst köşesinde pop-up şeklinde belirecektir. Bu yöntemle iletilen mesajlar "Netsis Bildirim Merkezi" eklentisi aracılığıyla daha sonra da görüntülenebilmektedir. "E-Posta" yöntemiyle bildirim iletilebilmesi içinse "Şirket/Şube Parametre Tanımları" ekranındaki e-posta ayarlarının yapılmış olması gerekmektedir. E-posta ayarları yapılmış bir oturumda e-posta yönteminin seçimi yapılırsa, aşağıda detayları anlatılmış olan mesaj başlığı ve içeriği ile seçili kullanıcılara bir e-posta bildirimi iletilecektir. Son olarak SMS bildirimi gönderilebilmesi için de SMS uygulamasının açılmış ve gereken ayarların yapılmış olması şartı bulunmaktadır. Bu ön koşulların sağlanması durumunda, yine aşağıda detayları bulunan mesaj başlığı ve içeriğiyle birlikte ilgili zamanlanmış göreve ait bir SMS bildirimi iletimi de mümkün olacaktır.
+
+Bilgilendirme yöntemi alanının altında bulunan "Kullanıcılar" alanı ise, seçilen yöntemle hangi kullanıcılara bilgilendirme yapılacağını tanımlamak için kullanılmaktadır. İlgili alanın sağ tarafındaki rehber menüsü kullanılarak, tanımlanmakta olan zamanlanmış görev sonlandığında bilgilendirme yapılacak kullanıcılar seçilmelidir.
+
+Yukarıda anlatılan bilgilendirme yöntemleriyle gönderilecek iletilerde yer alması istenen bilgiler ise ekranın en altındaki "Mesaj Başlığı" ve "Mesaj İçeriği" alanları kullanılarak belirlenmektedir. Bir zamanlanmış görev tamamlandığında, seçili kullanıcılara seçili yöntemlerle iletilmek istenen mesaj başlığı ve içeri ilgili alanlara yazılmalıdır. Böylece görev tamamlandığında ilgili alanlardaki veriler bildirim olarak gönderilecektir.
+
+#### Script Tipinde Zamanlanmış Görevler
+
+Zamanlanmış görev olarak tanımlanabilecek 5 tipte görevden ilki Script'tir. Bu tipte bir görev kaydedebilmek için Zamanlanmış Görev Tanımı ekranının "Görev Tipi" alanından Script seçimi yapılmalıdır. Ardından "Script Girişi" alanına tıpkı dinamik kodlama yaparken olduğu şekilde istenen script girişi yapılabilmektedir. Örneğin dinamik kodlamada kullanılan NetsisCore nesnesine bu ekran üzerinden de ulaşılabilmekte ve sorgular yaratılabilmektedir. (Bkz. Ekran Görüntüsü 4)
+
+![](../_assets/c39008b0cc438e9c7a5d.png)
+
+**Ekran** **Görüntüsü** **4**
+
+Script girişi alanının altında bulunan diğer tüm alanların kullanımları bu dokümanın 2. bölümünde anlatıldığı şekildedir. Herhangi bir farklılık bulunmamaktadır.
+
+#### Ön Tanımlı İşlem Tipinde Zamanlanmış Görevler
+
+Zamanlanmış görev olarak tanımlanabilecek 5 tipte görevden ikincisiyse Ön Tanımlı İşlem'dir. Görev tipi alanından "Ön Tanımlı İşlem" seçimi yapıldığında, bu kategoride tanımlanabilecek görevlerin listesi, oluşacak "Ön Tanımlı İşlem" alanında görüntülenecektir. (Bkz. Ekran Görüntüsü 5) Sistemde ön tanımlı işlem olarak zamanlanmış görev kaydı yapılabilecek 13 işlem bulunmaktadır. Bunlar; Gereksinim Planlama Oluşturma, Malzeme Gereksinim Planlama, Maliyet Oluşturma, Maliyet Muhasebesi, Döviz Kurları Güncelleme, Stok Hareket Kontrol, İleri Üretim Çizelgeleme, E-Fatura Sorgulama, Cari Hareket Kontolü, Yevmiye Kontrol, Veritabanı Bakım İşlemleri, Yeni Tanıtım Videosu Kontrolü ve Yeni Sürüm Kontrolü'dür.
+
+![](../_assets/1d2945ce2975bab68bfb.png)
+
+**Ekran** **Görüntüsü** **5**
+
+Ekrandaki "Ön Tanımlı İşlem" alanı listesindeki işlemlerden herhangi biri seçildiğinde, ilgili işleme ait parametreler ekranın ortasındaki boş alanda görüntülenecektir. Her ön tanımlı işlemin sistemde farklı parametre tanımları olduğundan, zamanlanmış görev tanımı ekranında listelenecek parametreler de işlemler bazında farklı olacaktır. (Bkz. Ekran Görüntüsü 6 ve Ekran Görüntüsü 7)
+
+![](../_assets/d2e62eaef54850c59a6f.png)![](../_assets/33237abefc092976188e.png)
+
+**Ekran** **Görüntüsü** **6** **Ekran** **Görüntüsü** **7**
+
+Ek olarak ön tanımlı işlemlerin bazılarında, işlemin sistemdeki çalışma prensibi gereği "Dinamik Tarih Aralığı" alanı da oluşacaktır. (Bkz. Ekran Görüntüsü 8) Maliyet oluşturma ya da ileri üretim çizelgeleme gibi belirli zaman aralıkları için çalıştırılan işlemlerde oluşan "Dinamik Tarih Aralığı" alanı, ilgili zamanlanmış görev her çalıştırıldığında tarih ayarı yapmak zorunluluğunu ortadan kaldırmaktadır.
+
+![](../_assets/3490bca0aae8ec150f96.png)
+
+**Ekran** **Görüntüsü** **8**
+
+Bir işlem için "Dinamik Tarih Aralığı" parametresi işaretlendiğinde "Dinamik Gün" alanı aktifleşecek ve "Parametreler" alanındaki tarih parametreleri pasifleşecektir. İlgili işlem için kaydedilen başlangıç tarihi ve yineleme sıklığı dikkate alınarak işlem, "Dinamik Gün" kadarlık süre için çalıştırılacak şekilde başlangıç ve bitiş tarihi alanları dinamik olarak belirlenecektir. Örneğin Ekran Görüntüsü 8'deki işlemin ilk çalışma tarihi 10 Haziran 2020 olacaktır ve dinamik tarih günü 10 olarak atandığı için 10 Haziran 2020'den 16 Haziran 2020'ye kadarki süreç için gereksinim planlama oluşturulacaktır. Bu işlem yineleme sıklığına göre her ay çalıştırılacak ve her ay yine 10 günlük bir periyot için gereksinim planı oluşturulacaktır.
+
+Dinamik tarih aralığı ile çalıştırılabilen işlemlerin doğası gereği "Dinamik Gün" parametresinin çalışma mantığı da farklılaşabilmektedir. Bazı işlemlerde dinamik gün ileriye doğru çalışırken bazı işlemlerdeyse geriye doğru çalışmaktadır. (Bkz. Ekran Görüntüsü 9)
+
+![](../_assets/61f3563f370b62b396c6.png)
+
+**Ekran** **Görüntüsü** **9**
+
+![](../_assets/1a1ca457cb6a90f1a75b.png)
+
+Ön tanımlı işlem olarak zamanlanabilen işlemlerin çoğunluğunun Netsis üzerinde ayrı ekranları bulunmaktadır. Bu işlemlerin zamanlanmış görev tanımları kendi ekranları üzerinden de yapılabilmektedir. Bunun için ilgili işlemin tüm çalıştırma ayarları yapıldıktan sonra, işlemi çalıştırmak için tıklanması gereken son butonun yanındaki aşağı ok simgesine tıklanmalıdır. (Bkz. Ekran Görüntüsü 10)
+
+**Ekran** **Görüntüsü** **10**
+
+Bahsi geçen simgeye tıklandığında ekranda "Zamanlanmış Görev Ekle" seçeneği görüntülenecektir. Bu seçeneğe tıklandığında ise, ilgili işlem ekranında yapılan tüm parametre ayarları "Zamanlanmış Görev Tanımı" ekranına aktarılacak ve işlem zamanlanmış görev olarak kaydedilmek için hazır hale getirilecektir. (Bkz. Ekran Görüntüsü 11)
+
+![](../_assets/22858065db77d26a2f0d.png)
+
+**Ekran** **Görüntüsü** **11**
+
+Netsis içinde ayrı olarak ekranı bulunmayan ön tanımlı işlemler ise Veri Tabanı Bakım İşlemleri, Yeni Tanıtım Videosu Kontrolü ve Yeni Sürüm Kontrolü'dür. Veri tabanı bakım işlemleri görevi, veri tabanında yer alan tabloların index'lerinin yeniden düzenlenmesini (index rebuild) ve istatistiklerinin güncellenmesini sağlayarak programın performansını olumlu yönde etkilemektedir. (Bkz. Ekran Görüntüsü 12)
+
+![](../_assets/d4018a60307c6ac3a9a8.png)
+
+**Ekran** **Görüntüsü** **12**
+
+Bu görevin 2 parametresinden ilki "Tablo İsmi"dir. Eğer bakım işlemi yalnızca belirli bir tablo için yapılmak istenirse bu parametre kullanılmalı, aksi halde boş bırakılmalıdır. Bu parametrenin boş bırakılması halinde, tüm tablo index'lerinin bozulma oranları (total fragmentation) taranacak ve belirli bir bozulma oranını aşan tüm tabloların index'leri yeniden düzenlenecektir. Diğer parametre olan "İstatistikleri Güncelle" parametresi ise istatistiklerin güncellenmesinin istendiği durumlarda işaretlenmelidir.
+
+Netsis içinde ayrı olarak ekranı bulunmayan bir diğer ön tanımlı işlemse Yeni Tanıtım Videosu Kontrolü'dür. Bu görev, Logo Netsis'in yeni sürümleriyle birlikte Youtube'da yayınlanan tanıtım videolarını tarayarak yeni videolar hakkında bildirimde bulunmaktadır. (Bkz. Ekran Görüntüsü 13) Zamanlanmış görev tanımı ekranından bu işleme ait herhangi bir parametre bulunmamaktadır.
+
+![](../_assets/2c40ebe3f8c58b9ba318.png)
+
+**Ekran** **Görüntüsü** **13**
+
+9.0.28 sürümünden itibaren, bu işlem varsayılan bir zamanlanmış görev olarak tüm kullanıcılara tanımlanmaktadır. İlgili görev, günde 2 kez belirli saatlerde çalışmakta ve yeni videolar bulması halinde bir pencerede bu videoların listesini göstermektedir. Aynı pencere üzerinden izlenmek istenen videoyu seçebilmek ve izlemek de mümkündür. (Bkz. Ekran Görüntüsü 14)
+
+![](../_assets/546e1a9c058fb4e8c9f7.png)
+
+**Ekran** **Görüntüsü** **14**
+
+Kendine ait ayrı herhangi bir ekranı bulunmayan son ön tanımlı işlemse Yeni Sürüm Kontrolü'dür. (Bkz. Ekran Görüntüsü 15) Yeni sürüm kontrolü işlemi de 9.0.28 sürümünden itibaren varsayılan bir zamanlanmış görev olarak tüm kullanıcılara tanımlanmaktadır. Günde 1 kez belirli saatlerde çalışan görev, yeni sürüm bulunması halinde kullanıcıya bildirim iletmektedir. İlgili görevin yeni bir zamanlanmış görev olarak manuel tanımlanması da mümkündür. Bu durumda "Yeni Sürüm İndirilsin" parametresinin de kullanımı mümkün olacaktır. Bu parametre işaretlendiği takdirde zamanlanmış görev tarafından yeni sürüm bulunduğunda, bu sürümün indirme işlemi de otomatik olarak yapılacaktır. Kurulumun ise kullanıcı tarafından NetUpdate.exe kullanılarak yapılması gerekmektedir.
+
+![](../_assets/6293c951eefbb92d7dd9.png)
+
+**Ekran** **Görüntüsü** **15**
+
+#### Uygulama Çalıştır Tipinde Zamanlanmış Görevler
+
+Zamanlanmış görev olarak tanımlanabilecek 5 tipte görevden üçüncüsü Uygulama Çalıştır'dır. Görev tipi alanından "Uygulama Çalıştır" seçimi yapıldığında, zamanlanmış görev tanımı ekranında yeni alanlar oluşacaktır. (Bkz. Ekran Görüntüsü 16)
+
+![](../_assets/1cc53534e2a2e32165c3.png)
+
+**Ekran** **Görüntüsü** **16**
+
+Zamanlanmış görev olarak bir uygulamayı çalıştırabilmek için öncelikle çalıştırılacak uygulamanın SSO servisinin çalıştığı sunucuda yer alması ve .exe ya da .bat uzantılı olması gerekmektedir. Bu ön koşulun sebebi tüm zamanlanmış görevlerin SSO servisinin kurulu olduğu sunucu üzerinden çalıştırılıyor olmasıdır. Dolayısıyla çalıştırılacak uygulama yolunun da aynı sunucu üzerinde olması beklenmektedir. SSO sunucusu üzerindeki bu yol, ekranda oluşan "Uygulama Yolu" alanına girilmelidir. Ardından yolu girilen bu uygulama parametre desteği sağlıyorsa ve bu parametreler zamanlanmış göreve de yansıtılmak isteniyorsa "Parametreler" alanı kullanılmalıdır.
+
+"Zaman Aşımı" parametresi ise çalıştırılan uygulamanın ne kadar süre çalıştırılacağını sınırlamak için kullanılmaktadır. Eğer bu alana hiçbir veri girilmezse, varsayılan olarak uygulama 2 saat çalıştırılacak ve 2 saatten uzun sürerse otomatik olarak sonlandırılacaktır. Bu varsayılan 2 saatlik süreyi değiştirebilmek için "Zaman Aşımı" alanına dakika cinsinden giriş yapılmalıdır.
+
+#### Rapor Çalıştır Tipinde Zamanlanmış Görevler
+
+Zamanlanmış görev olarak tanımlanabilecek 5 tipte görevden dördüncüsü Rapor Çalıştır'dır. Görev tipi alanından "Rapor Çalıştır" seçimi yapıldığında, zamanlanmış görev tanımı ekranında yeni alanlar oluşacaktır. (Bkz. Ekran Görüntüsü 17)
+
+![](../_assets/8b0428da271c9b614c92.png)
+
+**Ekran** **Görüntüsü** **17**
+
+Zamanlanmış görevler desteği kapsamında standart rapor formatından çıktı veren tüm raporları zamanlayarak istenildiğinde hazır olacak şekilde alabilmek mümkündür. Bunun için zamanlanmış görev tanımı ekranından raporun alınacağı "Modül", "Program" ve "Taslak No" seçimleri yapılmalıdır. Bir rapora ait taslak numarası bulunabilmesi için ilgili rapor ekranındaki "Sakla" butonu yardımıyla bir taslak kaydı gerçekleştirilmiş olmalıdır. Rapor tipli bir zamanlanmış görev kaydedebilmek için "Taslak No" alanına giriş yapılması zorunludur.
+
+![](../_assets/4b8831bd8936675be76f.png)
+
+"Rapor Sonuç Çıktısı" alanında ise Xlsx ve PDF seçenekleri bulunmaktadır. Buradan istenilen seçim yapıldıktan sonra zamanı gelip tamamlanan rapor çalıştır görevine dair bildirim mesajı (bilgilendirme yöntemi olarak seçiliyse) ekranın sağ üst köşesinde görüntülenecektir. Görüntülenen bu bildirimin sol alt köşesindeyse raporu doğrudan açabilmeyi sağlayan bir ikon bulunacaktır. Bu ikona tıklanarak raporu açabilmek mümkündür. (Bkz. Ekran Görüntüsü 18)
+
+**Ekran** **Görüntüsü** **18**
+
+Bilgilendirme yöntemi olarak e-posta seçimi yapılan durumlardaysa çalıştırılan rapor, gönderilen bildirim e-mail'inin eklentisi olarak iletilecektir. SMS tipli bildirimlerde ise SMS'in doğası gereği yalnızca text mesajı olarak bilgilendirme yapılabilecektir.
+
+Rapor çalıştır tipli zamanlanmış görevler yalnızca Netsis'in içeriğinde yer alan hazır raporlar için değil aynı zamanda kullanıcıların özel olarak oluşturduğu "Serbest Rapor"lar için de kullanılabilmektedir. Bunun için "Modül" alanından rapor modülü seçilmeli ve "Program" alanından serbest rapor seçimi yapılmalıdır. Ardından zamanlanmak istenen serbest raporun taslak numarası seçilerek görev kaydedilmelidir.
+
+#### REST Tipinde Zamanlanmış Görevler
+
+Zamanlanmış görev olarak tanımlanabilecek 5 tipte görevden beşinci ve sonuncusu REST'tir. Görev tipi alanından "REST" seçimi yapıldığında, zamanlanmış görev tanımı ekranında yeni alanlar oluşacaktır. (Bkz. Ekran Görüntüsü 19) REST tipinde bir zamanlanmış görev çalıştırılarak Netsis REST servisine ya da özel REST servislerine istekler gönderilmesi mümkündür.
+
+![](../_assets/f946f7bd2e8868e5934d.png)
+
+**Ekran** **Görüntüsü** **19**
+
+REST servisine gönderilecek isteğin metodu ekrandaki "Web Metot" alanından seçilmelidir. Bu alandan; GET, POST, PUT veya DELETE metotları seçilebilmektedir. "URL" alanına ise istek gönderilecek REST servisinin çalıştığı URL bilgisinin girilmesi gerekmektedir.
+
+"Kimlik Doğrulama" alanında ise Yok, Temel, Token ve Netsis-REST seçenekleri bulunmaktadır. Buradan "Yok" seçimi yapılırsa, herhangi bir kimlik kontrolü yapılmayacağından bu alanın hemen altındaki "Kullanıcı Adı" ve "Şifre" alanları da pasif duruma gelecektir. "Temel" seçimi yapıldığındaysa "Kullanıcı Adı" ve "Şifre" alanları aktif olacak ve gönderilecek isteğe bu bilgilerin de iliştirilmesi sağlanacaktır. İlgili alandan "Token" seçimi yapılması durumundaysa "Kullanıcı Adı" ve "Şifre" alanları pasif duruma getirilip "Token" alanı aktif edilecektir. Aktifleşen bu "Token" alanına girilecek token verisi ile kimlik doğrulama yapılabilecektir. Son olarak "Netsis-REST" seçimi yapılması durumunda ise yine "Kullanıcı Adı" ve "Şifre" alanları aktif duruma getirilecektir. Bu alanlara Netsis girişi yaparken kullanılan kullanıcı adı ve şifre bilgileri girilerek otomatik Token alınması sağlanabilmektedir.
+
+Kimlik doğrulama alanından yapılan seçime göre aktif duruma gelen gerekli alanların doldurulmasından sonra "Header" ve "Body" alanlarına geçilerek REST servisine gönderilecek isteğin Header ve Body bilgilerinin doldurulması gerekmektedir.
+
+![](../_assets/5a9b9f29f682c9aa8e6b.png)
+
+**Ekran** **Görüntüsü** **20**
+
+Zamanlanmış görevler eklentisinin "+" butonuna tıklanarak ulaşılan "Zamanlanmış Görev Tanımı" ekranının tüm detayları yukarıda anlatılmıştır. Eklenti üzerinde bulunan bir diğer buton ise "+" butonunun hemen solunda yer alan ve eklenti üzerinde seçili duruma getirilmiş bir zamanlanmış görevi silmeye yarayan çöp kutusu şeklindeki "Sil" butonudur. (Bkz. Ekran Görüntüsü 21)
+
+![](../_assets/5fa44e9498bac5cbdfda.png)
+
+**Ekran** **Görüntüsü** **21**
+
+Eklentinin araç çubuğunda bulunan ileri ve geri yönlü saat ikonlarıyla gösterilen diğer iki buton ise seçili zamanlanmış görevin geçmiş verilerini ve gelecekteki zaman çizelgesini göstermektedir. (Bkz. Ekran Görüntüsü 22)
+
+Araç çubuğunda bulunan ilk buton olan "Kopyala" butonu ise eklenti üzerimde seçili bir zamanlanmış görevi aynen kopyalayarak, yeni bir zamanlanmış görev olarak kaydedebilme imkanı sağlamaktadır. Üzerinde küçük değişiklikler yapılması gereken yeni görevleri oluştururken, tüm tanımlamaları en baştan yapmaktansa mevcut bir görev üzerinde değişiklik yapma imkanı sağlayan "Kopyala" butonu kullanıcılara tanımlama kolaylığı sağlamaktadır.
+
+![](../_assets/bdf6647bf353c06d979f.png) ![](../_assets/67f8dfb21431a60545d0.png)
+
+**Ekran** **Görüntüsü** **22**
+
+Zamanlanmış görevler eklentisi üzerinde bulunan son buton ise kopyala butonunun hemen sağında yer alan "Şimdi Çalıştır" butonudur. Eklenti üzerinde listelenmiş ve henüz çalışma zamanı gelmemiş bir görevi manuel olarak çalıştırabilmek için ilgili görev seçili duruma getirilerek "Şimdi Çalıştır" butonuna tıklanmalıdır.
+
+Zamanlanmış görevler eklentisi üzerinde kayıtlı bir görevin belirli bilgileri eklentide sütunlar halinde görüntülenmektedir. (Bkz. Ekran Görüntüsü 23) İlk sütun olan "Görev No" alanı kaydedilen her yeni göreve otomatik ve ardışık olarak sistem tarafından verilen sayılardan oluşmaktadır.
+
+![](../_assets/d4184475c915ff989819.png)
+
+**Ekran** **Görüntüsü** **23**
+
+"Durum" alanında ilgili görevin durumuyla ilgili bilgi gösterilmektedir. Anlık olarak çalışmakta olan bir görev için "Durum" alanında "Çalışıyor" ibaresi yer alacaktır. Çalışıp tamamlanan ve zamanlanmış olarak bir daha çalıştırılması gerekmeyen görevler içinse aynı alanda "Tamamlandı" yazmaktadır. Eğer bir görev tekrarlı şekilde oluşturulup en az bir kez çalışmasını tamamlandıysa ve ilgili görev zamanlanan periyotlarla tekrar tekrar çalışmaya devam edecekse, durum sütununda "Başarılı" yazacaktır. Herhangi bir görev zamanlanmış ancak çalışma zamanı gelmemiş ve çalışmak üzere bekliyorsa durum sütununda "Hazır" ibaresi görüntülenecektir. Zaman aşımına uğramak gibi bir sorun sebebiyle doğru şekilde çalışıp tamamlanamayan görevlerin durum sütununda ise "Hatalı" ibaresi gösterilmektedir.
+
+"Açıklama" alanı ise zamanlanmış görev tanımı ekranındaki "Açıklama" alanında ilgili görev için girilen açıklamayı göstermektedir. "Şube Kodu" alanında ilgili zamanlanmış görevin hangi şubede çalıştığı gösterilmektedir. Ayrıca zamanlanmış görevlerin son çalışma ve bir sonraki çalışma tarihleri de "Son Çalışma Zamanı" ve "Sonraki Çalışma Zamanı" sütunlarında gösterilmektedir. Herhangi bir zamanlanmış görevin son çalıştığında çalışmasının ne kadar sürdüğü ise "Çalışma Süresi" sütunundan izlenebilmektedir. Bir görevi kaydeden kullanıcı "Kullanıcı Adı" sütunundan, görevlerin zamanlanmış görev tanımı ekranındaki tekrar periyotları ve aktif olarak kullanılıp kullanılmadığı bilgileri ise "Yineleme Sıklığı" ve "Aktif" sütunlarından takip edilebilmektedir.
+
+Tüm bu anlatılanlara ek olarak, bilgilendirme yöntemi olarak "Bildirim Mesajı" seçilen görevlere ait bildirimlerin tümü "Netsis Bildirim Merkezi" eklentisi üzerinde kayıtlı şekilde bulunacak ve istenilen her zaman ulaşılabilecektir. Netsis bildirim merkezinden bir görev bildirimi çift tıklanarak açılabilmekte ve bildirimin varsa eklentileri de görüntülenebilmektedir. (Bkz. Ekran Görüntüsü 24)
+
+![](../_assets/7ea09b4680b725a0549a.png)![](../_assets/71ad0029f13e75a65048.png)
+
+**Ekran** **Görüntüsü** **24**
+
+Zamanlanmış görevler eklentisi üzerinde sağ tık menüsü de bulunmaktadır. Eklenti üzerindeki araç çubuğunda bulunan tüm butonların fonksiyonları bu menüde de yer almaktadır. Bunlara ek olarak sağ tık menüsü içinde eklentideki tüm listeyi Excel'e çıkarabilmek için "Gönder" seçeneği, aynı listeyi filtreleyebilmek için "Gruplama" seçeneği ve "Görünüm Ayarları" seçeneği bulunmaktadır. (Bkz. Ekran Görüntüsü 25)
+
+![](../_assets/5581d75b8ddd8604476d.png)
+
+**Ekran** **Görüntüsü** **25**
