@@ -105,6 +105,7 @@ class RunReport:
     embeds: int = 0
     promoted_headings: int = 0
     title_mismatches: int = 0
+    unchanged: int = 0
     internal_links: int = 0
     unresolved_links: int = 0
     pseudo_tags: dict[str, int] = field(default_factory=dict)
@@ -137,6 +138,7 @@ class RunReport:
             f"  Gomulu video/cerceve: {self.embeds}",
             f"  Yukseltilen baslik : {self.promoted_headings}",
             f"  Baslik uyusmazligi : {self.title_mismatches}",
+            f"  Degismeyen (yazilmadi): {self.unchanged}",
             f"  Ic baglanti        : {self.internal_links} cozuldu, {self.unresolved_links} cozulemedi",
         ]
         if self.pseudo_tags:

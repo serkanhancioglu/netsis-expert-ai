@@ -183,6 +183,14 @@ class StateStore:
             ).fetchone()
         return row["status"] if row else None
 
+    def hash_of(self, doc_url: str) -> str | None:
+        """Bu dokumanin en son yazilan govde ozeti (degisiklik tespiti icin)."""
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT markdown_hash FROM documents WHERE doc_url = ?", (doc_url,)
+            ).fetchone()
+        return row["markdown_hash"] if row else None
+
     def completed_urls(self) -> set[str]:
         with self._connect() as connection:
             return {

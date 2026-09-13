@@ -166,9 +166,10 @@ düzelince kademeli olarak normale döner. `Retry-After` başlığına uyulur.
 |---|---|
 | `--limit N` | Sadece ilk N dokümanı işle (deneme için) |
 | `--dry-run` | Hiçbir istek yapma, sadece planı göster |
-| `--force` | Tamamlanmışlar dahil her şeyi yeniden indir |
+| `--refresh` | Her şeyi yeniden indir, **yalnızca içeriği değişmiş** dosyaları yeniden yaz (dönemsel güncelleme için doğru kip) |
+| `--force` | Her şeyi yeniden indir **ve** her dosyayı yeniden yaz |
 | `--retry-failed` | Sadece hatalı kalanları yeniden dene |
-| `--max-path-length` | Toplam yol uzunluğu sınırı (Windows için `240` önerilir) |
+| `--max-path-length` | Çıktı köküne **göreli** yol uzunluğu sınırı (varsayılan `200`) |
 | `-v` / `-q` | Ayrıntılı günlük / ilerleme çubuğunu gizle |
 
 ---
@@ -210,6 +211,35 @@ yalnızca yorum satırlarından oluşur, hiçbir `Disallow` kuralı yoktur.
   UTF-8'e bakar.
 - **Dosya farkında devam.** Durum veritabanı "tamam" dese bile hedef dosya
   silinmiş ya da boşsa o doküman yeniden indirilir.
+
+### Çıktı belirlenimli (deterministic)
+
+Aynı kaynaktan iki kez indirdiğinizde **birebir aynı** ağacı alırsınız. Bu iki
+tasarım kararıyla sağlanır:
+
+1. **Yol bütçesi mutlak yoldan bağımsız.** `--max-path-length` çıktı köküne
+   *göreli* yola uygulanır. Bütçeye çıktı klasörünün uzunluğu katılsaydı, klasör
+   adı tek karakter uzadığında kısaltma eşiği kayar ve bazı dosyalar yeniden
+   adlandırılırdı — yani aynı ağaç iki makinede farklı dosya adları üretirdi.
+   (Ölçüldü: 70 karakterlik bir çıktı yolunda 1 karakterlik fark 2.328 yoldan
+   5'ini değiştiriyordu.) Windows 260 sınırı ayrıca kontrol edilir ve aşılırsa
+   uyarı verilir.
+
+2. **Değişmeyen dosya yeniden yazılmaz.** Değişiklik özeti yalnızca gövdeden
+   hesaplanır. `fetched_at` zaman damgası da hesaba katılsaydı her dosya her
+   çalışmada değişir; hem değişiklik tespiti işlevsizleşir hem de iki çalışma
+   arasındaki `git diff` baştan aşağı gürültü olurdu.
+
+   Bunun asıl faydası `--refresh` kipinde görülür: aylık bir güncelleme
+   çalıştırdığınızda her doküman yeniden indirilir ama diskte yalnızca gerçekten
+   değişenler yenilenir. Çıktı klasörünü git'te tutuyorsanız `git diff` size tam
+   olarak Logo'nun neyi değiştirdiğini gösterir. `--force` bu kontrolü bilerek
+   atlar; adı üstünde, her şeyi yeniden yazmak istediğinizde kullanılır.
+
+Kısaltma gerektiğinde dosya adının **gövdesi** kesilir, `.md` uzantısı her zaman
+korunur. Aksi halde kesilen dosyalar `**/*.md` taramalarından (MkDocs, çoğu RAG
+yükleyicisi) sessizce düşerdi. Varsayılan bütçe 200 ile bugünkü ağaçta hiçbir
+dosya kısaltılmıyor (en uzun göreli yol 188 karakter).
 
 ---
 
@@ -293,9 +323,10 @@ sadakat istiyorsanız dokunmayın; arama korpusu kuruyorsanız açın.
 
 **Çok sayıda `429` uyarısı** — `--min-interval 1.0 -j 2` ile yavaşlatın.
 
-**Windows'ta "yol çok uzun"** — Çıktıyı kısa bir yola alın (`C:\netsis`) ve
-`--max-path-length 200` verin. En uzun göreli yol 188 karakterdir; `C:\netsis` ile
-toplam 197 karakter olur ve 260 sınırının altında kalır.
+**Windows'ta "yol çok uzun"** — En uzun göreli yol 188 karakterdir.
+`C:\Users\<ad>\Documents\netsis-docs` (37 karakter) ile toplam 226 karakter olur
+ve 260 sınırının altında kalır. Yine de uyarı alırsanız çıktıyı kısa bir yola
+alın (`C:\netsis`) ya da `--max-path-length 150` verin.
 
 **Bazı dokümanlar hatalı** — `--retry-failed` ile yeniden deneyin. Hatalar
 `_rapor.txt` dosyasında sebebiyle birlikte listelenir.

@@ -107,13 +107,36 @@ class SegmentAllocator:
         return candidate
 
 
-def shorten_relative_path(parts: list[str], budget: int) -> list[str]:
-    """Toplam yol uzunlugu ``budget`` karakteri asiyorsa parcalari kisaltir.
+def _split_extension(segment: str) -> tuple[str, str]:
+    """Dosya adini govde ve uzanti olarak ayirir (uzanti yoksa ikinci parca bostur)."""
+    stem, dot, suffix = segment.rpartition(".")
+    if dot and stem and 0 < len(suffix) <= 5 and " " not in suffix:
+        return stem, dot + suffix
+    return segment, ""
 
-    Once her parcaya uygulanabilecek en buyuk ortak ust sinir ikili arama ile bulunur,
-    sonra bu siniri asan her parca kisaltilir. Kisaltilan her parcaya, iki farkli
-    basligin ayni ada dusmemesi icin kisa bir sha1 ozeti eklenir. Boylece derin
-    agaclarda bile Windows MAX_PATH sinirinin altinda kalinir.
+
+def _truncate_segment(segment: str, cap: int) -> str:
+    """Bir yol parcasini ``cap`` karaktere sigdirir.
+
+    Kisaltma yalnizca govdeye uygulanir; uzanti her zaman korunur. Aksi halde
+    kisaltilan dosya adlari ``.md`` ile bitmez ve ``**/*.md`` taramalari onlari
+    hic gormez. Ozgunlugu korumak icin kisaltilan ada kisa bir sha1 ozeti eklenir.
+    """
+    if len(segment) <= cap:
+        return segment
+    stem, extension = _split_extension(segment)
+    digest = hashlib.sha1(segment.encode("utf-8")).hexdigest()[:6]
+    keep = max(1, cap - 7 - len(extension))
+    return f"{stem[:keep].rstrip(' .-')}~{digest}{extension}"
+
+
+def shorten_relative_path(parts: list[str], budget: int) -> list[str]:
+    """Toplam goreli yol uzunlugu ``budget`` karakteri asiyorsa parcalari kisaltir.
+
+    Her parcaya uygulanabilecek en buyuk ortak ust sinir ikili arama ile bulunur,
+    sonra bu siniri asan parcalar kisaltilir. Sonuc yalnizca ``parts`` ve
+    ``budget``'in fonksiyonudur; cikti klasorunun nerede oldugundan bagimsizdir,
+    yani ayni agac her makinede birebir ayni dosya adlarini uretir.
     """
     parts = list(parts)
     if not parts:
@@ -121,26 +144,19 @@ def shorten_relative_path(parts: list[str], budget: int) -> list[str]:
 
     separators = max(0, len(parts) - 1)
 
-    def total(ps: list[str]) -> int:
-        return sum(len(x) for x in ps) + separators
+    def total(segments: list[str]) -> int:
+        return sum(len(x) for x in segments) + separators
 
     if total(parts) <= budget:
         return parts
 
-    def truncate(segment: str, cap: int) -> str:
-        if len(segment) <= cap:
-            return segment
-        digest = hashlib.sha1(segment.encode("utf-8")).hexdigest()[:6]
-        keep = max(1, cap - 7)
-        return f"{segment[:keep].rstrip(' .-')}~{digest}"
-
-    #: Kisaltilan bir parca "~abc123" ekiyle birlikte en az bu kadar yer kaplar.
-    min_cap = 8
-    low, high = min_cap, max(len(x) for x in parts)
+    #: Kisaltilmis bir parca "~abc123" ekiyle birlikte en az bu kadar yer kaplar.
+    floor = 8
+    low, high = floor, max(len(x) for x in parts)
     best: list[str] | None = None
     while low <= high:
         cap = (low + high) // 2
-        candidate = [truncate(x, cap) for x in parts]
+        candidate = [_truncate_segment(x, cap) for x in parts]
         if total(candidate) <= budget:
             best = candidate
             low = cap + 1
@@ -149,5 +165,5 @@ def shorten_relative_path(parts: list[str], budget: int) -> list[str]:
 
     if best is None:
         # Butce cok dar: her parcayi en kucuk anlamli boyuta indir ve oyle birak.
-        best = [truncate(x, min_cap) for x in parts]
+        best = [_truncate_segment(x, floor) for x in parts]
     return best

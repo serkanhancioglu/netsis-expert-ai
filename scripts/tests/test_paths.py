@@ -70,3 +70,48 @@ def test_path_budget_is_respected():
 def test_short_paths_are_left_alone():
     parts = ["Genel", "Rapor", "Ozet.md"]
     assert shorten_relative_path(parts, 240) == parts
+
+
+def _real_path() -> list[str]:
+    """Agactaki en uzun gercek yol (7 seviye + dosya adi)."""
+    return [
+        "Kullanıcı Dokümanları",
+        "Muhasebe",
+        "Muhasebe Modülü",
+        "Ekler - Muhasebe",
+        "Ek-1 Enflasyon Muhasebesi",
+        "Muhasebe Modülü Enflasyon Düzeltme İşlemleri",
+        "Enflasyon Düzeltmeleri - Parasal Kar-Zarar Virmanı.md",
+    ]
+
+
+def test_a_path_with_an_extension_is_actually_shortened():
+    """Regresyon: uzanti farkindaligi eklenirken kisaltma tamamen devre disi kalmisti.
+
+    Noktasiz parcalardan olusan test bunu yakalayamiyordu, cunku hata yalnizca
+    parcalardan biri nokta icerdiginde tetikleniyordu.
+    """
+    parts = _real_path()
+    original = sum(len(p) for p in parts) + len(parts) - 1
+    assert original > 120, "test verisi butceyi asmali, yoksa hicbir sey olculmez"
+    result = shorten_relative_path(parts, 120)
+    total = sum(len(p) for p in result) + len(result) - 1
+    assert total <= 120, f"kisaltma calismadi: {total} > 120"
+
+
+def test_md_extension_survives_truncation():
+    """Kesilen dosya adi .md ile bitmezse `**/*.md` taramalari onu hic gormez."""
+    for budget in (180, 150, 120, 90):
+        result = shorten_relative_path(_real_path(), budget)
+        assert result[-1].endswith(".md"), f"butce={budget}: {result[-1]!r}"
+
+
+def test_shortening_is_deterministic_and_independent_of_anything_else():
+    parts = _real_path()
+    assert shorten_relative_path(parts, 120) == shorten_relative_path(list(parts), 120)
+
+
+def test_different_long_names_stay_distinct_after_truncation():
+    a = shorten_relative_path(["ust", "A" * 100 + "bir.md"], 60)
+    b = shorten_relative_path(["ust", "A" * 100 + "iki.md"], 60)
+    assert a != b, "kesilen iki farkli ad ayni dosyaya dusmemeli"

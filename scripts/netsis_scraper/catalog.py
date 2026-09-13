@@ -249,8 +249,7 @@ def plan_paths(
     nodes: Sequence[DocNode],
     *,
     number_prefix: bool = False,
-    max_path_length: int = 240,
-    output_dir_length: int = 0,
+    max_relative_path: int = config.MAX_RELATIVE_PATH,
 ) -> None:
     """Her dugum icin ``relative_path`` alanini doldurur (yerinde degistirir).
 
@@ -262,7 +261,8 @@ def plan_paths(
     * Ayni klasordeki cakisan adlar ``(2)``, ``(3)`` ekiyle ayrilir; karsilastirma
       Windows/macOS gibi buyuk-kucuk harf duyarsiz dosya sistemleri icin
       kucuk harfe indirgenerek yapilir.
-    * Toplam yol uzunlugu ``max_path_length`` sinirini asarsa parcalar kisaltilir.
+    * Goreli yol ``max_relative_path`` sinirini asarsa parcalar kisaltilir; bu sinir
+      cikti klasorunun yerinden bagimsizdir, yani cikti her makinede aynidir.
     """
     allocator = SegmentAllocator()
     # Agactaki her dugumun (breadcrumb -> guvenli klasor adi) esleme tablosu.
@@ -303,14 +303,32 @@ def plan_paths(
             unique = allocator.allocate(parent_dir, f"{label}.md")
             parts = list(parent_dir) + [unique]
 
-        budget = max(40, max_path_length - output_dir_length - 1)
-        parts = shorten_relative_path(parts, budget)
+        # Butce cikti klasorunun uzunlugundan bagimsizdir; boylece ayni agac her
+        # makinede birebir ayni dosya adlarini uretir.
+        parts = shorten_relative_path(parts, max_relative_path)
         node.relative_path = Path(*parts)
 
 
 # --------------------------------------------------------------------------------------
 # CSV girdisi
 # --------------------------------------------------------------------------------------
+
+def check_absolute_path_lengths(
+    nodes: Sequence[DocNode], output_dir: Path, limit: int = 259
+) -> list[tuple[int, Path]]:
+    """Mutlak yolu Windows sinirini asacak dokumanlari bulur (uyari amacli).
+
+    Yol butcesi bilerek goreli tutulur; buradaki kontrol yalnizca kullaniciya
+    "cikti klasorunu daha kisa bir yere alin" demek icindir.
+    """
+    base = len(str(output_dir)) + 1
+    too_long = [
+        (base + len(str(node.relative_path)), node.relative_path)
+        for node in nodes
+        if base + len(str(node.relative_path)) > limit
+    ]
+    return sorted(too_long, reverse=True)
+
 
 def read_link_csv(path: Path) -> list[tuple[str, str]]:
     """Kullanicinin ``Baslik;URL`` bicimli CSV dosyasini okur.

@@ -24,6 +24,10 @@ python -m netsis_scraper --output ./netsis-docs              # tamamı
 
 Çalışma yarıda kesilirse **aynı komutu tekrar çalıştırın** — kaldığı yerden devam eder.
 
+Aylık güncelleme için `--refresh`: her şeyi yeniden indirir ama diskte yalnızca
+gerçekten değişmiş dosyaları yeniler, böylece `git diff` size tam olarak Logo'nun
+neyi değiştirdiğini gösterir.
+
 Tam kılavuz: [`../docs/SCRAPER.md`](../docs/SCRAPER.md)
 
 ## Dosya düzeni
@@ -41,7 +45,7 @@ Tam kılavuz: [`../docs/SCRAPER.md`](../docs/SCRAPER.md)
 | `netsis_scraper/store.py` | SQLite durum kaydı (kaldığı yerden devam) |
 | `netsis_scraper/report.py` | İlerleme göstergesi ve özet rapor |
 | `netsis_scraper/cli.py` | Komut satırı ve çalışma akışı |
-| `tests/` | 28 birim testi |
+| `tests/` | 68 birim testi |
 | `arastirma/` | Protokolün nasıl çözüldüğünü gösteren keşif betikleri |
 
 ## Testler

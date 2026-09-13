@@ -66,6 +66,9 @@ Ornekler:
 
   # Hatali kalanlari yeniden dene
   python -m netsis_scraper --output ./netsis-docs --retry-failed
+
+  # Aylik guncelleme: her seyi yeniden indir, yalnizca degiseni diske yaz
+  python -m netsis_scraper --output ./netsis-docs --refresh
 """,
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -142,11 +145,28 @@ Ornekler:
 
     group = parser.add_argument_group("Calisma kipi")
     group.add_argument("--limit", type=int, default=None, help="Yalnizca ilk N dokumani isle.")
-    group.add_argument("--force", action="store_true", help="Tamamlanmis dokumanlari da yeniden indir.")
+    group.add_argument(
+        "--force", action="store_true",
+        help="Her seyi yeniden indir VE her dosyayi yeniden yaz (icerik ayni olsa bile).",
+    )
+    group.add_argument(
+        "--refresh", action="store_true",
+        help=(
+            "Her seyi yeniden indir ama yalnizca icerigi degismis dosyalari yeniden yaz. "
+            "Donemsel guncelleme icin dogru kip: degismeyen dosyalara dokunulmaz, "
+            "boylece 'git diff' yalnizca gercek degisiklikleri gosterir."
+        ),
+    )
     group.add_argument("--retry-failed", action="store_true", help="Yalnizca hatali kalanlari yeniden dene.")
     group.add_argument("--dry-run", action="store_true", help="Hicbir sey indirme/yazma; yalnizca plani goster.")
-    group.add_argument("--max-path-length", type=int, default=240,
-                       help="Toplam yol uzunlugu ust siniri (Windows icin 240 onerilir).")
+    group.add_argument(
+        "--max-path-length", type=int, default=config.MAX_RELATIVE_PATH,
+        help=(
+            "Cikti kokune GORELI yol uzunlugu ust siniri "
+            f"(varsayilan: {config.MAX_RELATIVE_PATH}). Bilerek mutlak yoldan "
+            "bagimsizdir; boylece cikti agaci her makinede birebir ayni olur."
+        ),
+    )
     group.add_argument("-v", "--verbose", action="store_true", help="Ayrintili gunluk.")
     group.add_argument("-q", "--quiet", action="store_true", help="Ilerleme cubugunu gizle.")
     return parser
@@ -319,21 +339,39 @@ class Runner:
             with self._lock:
                 self.report.title_mismatches += 1
 
-        fetched_at = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
-        text = (
-            build_front_matter(
-                node,
-                product=self.settings.product,
-                fetched_at=fetched_at,
-                source_bytes=document.byte_length,
-            )
-            + (converted.markdown or f"# {node.name}\n\n*Bu bolumun kendi metni yok.*")
-            + "\n"
-        )
-        digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        body = converted.markdown or f"# {node.name}\n\n*Bu bolumun kendi metni yok.*"
+        # Ozet yalnizca govdeden hesaplanir. Zaman damgasi hesaba katilsaydi her
+        # calismada degisir; hem degisiklik tespiti islevsizlesir hem de iki
+        # calisma arasindaki `git diff` bastan asagi gurultu olurdu.
+        digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
+        target = self.settings.output_dir / node.relative_path
 
-        if not self.settings.dry_run:
-            write_atomic(self.settings.output_dir / node.relative_path, text)
+        unchanged = (
+            not self.settings.force
+            and self.store.hash_of(node.doc_url) == digest
+            and _has_content(target)
+        )
+
+        if self.settings.dry_run:
+            pass
+        elif unchanged:
+            # Icerik ayni: dosyaya dokunma. Boylece tekrar calistirmalar birebir
+            # ayni agaci birakir ve degisen dokumanlar `git diff` ile gorunur.
+            with self._lock:
+                self.report.unchanged += 1
+        else:
+            fetched_at = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+            text = (
+                build_front_matter(
+                    node,
+                    product=self.settings.product,
+                    fetched_at=fetched_at,
+                    source_bytes=document.byte_length,
+                )
+                + body
+                + "\n"
+            )
+            write_atomic(target, text)
             if self.settings.keep_html:
                 html_path = (
                     self.settings.output_dir / "_html" / node.relative_path
@@ -512,6 +550,7 @@ def main(argv: list[str] | None = None) -> int:
         number_prefix=args.number_prefix,
         max_path_length=args.max_path_length,
         force=args.force,
+        refresh=args.refresh,
         retry_failed=args.retry_failed,
         limit=args.limit,
         dry_run=args.dry_run,
@@ -572,9 +611,16 @@ def main(argv: list[str] | None = None) -> int:
     catalog.plan_paths(
         nodes,
         number_prefix=settings.number_prefix,
-        max_path_length=settings.max_path_length,
-        output_dir_length=len(str(settings.output_dir)),
+        max_relative_path=settings.max_path_length,
     )
+    too_long = catalog.check_absolute_path_lengths(nodes, settings.output_dir)
+    if too_long:
+        log.warning(
+            "%d dokumanin mutlak yolu Windows'un 260 karakter sinirini asiyor "
+            "(en uzunu %d karakter). Windows kullaniyorsaniz cikti klasorunu daha "
+            "kisa bir yere alin, ornegin C:\\netsis.",
+            len(too_long), too_long[0][0],
+        )
     selected = catalog.select_nodes(
         nodes, include_branches=settings.include_branches, csv_filter=args.only_csv
     )
@@ -596,12 +642,19 @@ def main(argv: list[str] | None = None) -> int:
                 for node in selected
             ]
         )
-        if settings.force:
-            log.info("--force: %d kayit yeniden indirilecek.", runner.store.reset_all())
+        if settings.force or settings.refresh:
+            reset = runner.store.reset_all()
+            if settings.force:
+                log.info("--force: %d kayit yeniden indirilecek ve yeniden yazilacak.", reset)
+            else:
+                log.info(
+                    "--refresh: %d kayit yeniden indirilecek; yalnizca icerigi "
+                    "degismis olanlar yeniden yazilacak.", reset,
+                )
         elif settings.retry_failed:
             log.info("--retry-failed: %d hatali kayit yeniden denenecek.", runner.store.reset_failed())
 
-        completed = set() if settings.force else runner.store.completed_urls()
+        completed = set() if (settings.force or settings.refresh) else runner.store.completed_urls()
         # Durum veritabani "tamam" dese bile dosya silinmis olabilir; diski dogrula.
         if completed and not settings.dry_run:
             by_url = {node.doc_url: node for node in selected}

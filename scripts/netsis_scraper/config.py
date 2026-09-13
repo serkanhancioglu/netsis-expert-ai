@@ -51,6 +51,19 @@ BRANCH_DOCUMENT_FILENAME = "index.md"
 #: Gorsellerin yazildigi, cikti kokune gore tek ve ortak klasor.
 ASSETS_DIRNAME = "_assets"
 
+#: Cikti kokune GORELI yolun en fazla kac karakter olabilecegi.
+#:
+#: Bu **sabittir** ve cikti klasorunun uzunlugundan bagimsizdir. Butceyi mutlak
+#: yola gore hesaplamak, ayni agacin farkli makinelerde farkli dosya adlari
+#: uretmesine yol acardi: klasor adi tek karakter uzadiginda kisaltma esigi
+#: kayar ve bazi dosyalar yeniden adlandirilir. Sabit butce, ciktinin her yerde
+#: birebir ayni olmasini garanti eder.
+#: 200 secildi cunku bugunku agacta hicbir dosya kisaltilmiyor (en uzun goreli
+#: yol 188 karakter) ve tipik bir Windows hedefiyle
+#: (C:\Users\<ad>\Documents\netsis-docs, 37 karakter) en kotu mutlak yol
+#: 238 karakterde kalir - 260 sinirinin guvenli tarafinda.
+MAX_RELATIVE_PATH = 200
+
 #: Calisma durumunun tutuldugu SQLite dosyasi (cikti kokune gore).
 STATE_FILENAME = ".netsis-scraper-state.sqlite3"
 
@@ -103,8 +116,9 @@ class Settings:
     promote_bold_headings: bool = False  # kalin paragraflari baslik say
     include_branches: bool = True      # alt basligi olan dugumler de indirilsin mi
     number_prefix: bool = False        # klasor/dosya adlarina sira numarasi eklensin mi
-    max_path_length: int = 240         # Windows MAX_PATH icin guvenli ust sinir
-    force: bool = False                # tamamlanmis dokumanlari da yeniden indir
+    max_path_length: int = MAX_RELATIVE_PATH   # goreli yol ust siniri (mutlak yoldan bagimsiz)
+    force: bool = False                # her seyi yeniden indir ve yeniden yaz
+    refresh: bool = False              # yeniden indir, yalnizca degiseni yeniden yaz
     retry_failed: bool = False         # yalnizca hatali kalanlari yeniden dene
     limit: int | None = None           # ilk N dokuman (deneme amacli)
     dry_run: bool = False
