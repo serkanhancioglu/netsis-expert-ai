@@ -23,5 +23,5 @@ Bu yapı, resmi Logo Netsis 3 Enterprise dokümantasyonundan çıkarılan **1.93
 ## Beklenen akış
 
 1. 1.936 Markdown dosyayı `markdown/` altına yükleyin.
-2. Her dosya için metadata kaydını `metadata/articles-manifest.csv` içinde tutun.
+2. Her dosya için metadata kaydını `metadata/articles-manifest.csv` içinde tutun (örnek `relative_path`: `knowledge-base/markdown/ornek-makale.md`).
 3. RAG pipeline çıktılarınızı `rag/chunks/` ve `rag/embeddings/` altında saklayın.
