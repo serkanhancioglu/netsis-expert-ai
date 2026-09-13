@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Netsis Article Manifest Entry",
+  "description": "knowledge-base/metadata/articles-manifest.csv dosyasindaki tek bir satir. Bu dosya elle doldurulmaz; `python -m netsis_scraper --output knowledge-base/markdown` calistirildiginda uretilir.",
   "type": "object",
   "required": [
     "article_id",
@@ -15,13 +16,16 @@
   "properties": {
     "article_id": {
       "type": "string",
-      "description": "Makale için benzersiz kimlik"
+      "pattern": "^NETSIS-[0-9]{4,}$",
+      "description": "Kararli kimlik. Agactaki gezinme sirasina gore verilir, her calismada ayni kalir."
     },
     "title": {
-      "type": "string"
+      "type": "string",
+      "description": "Makale basligi. Kaynak belgenin <h1> etiketiyle dogrulanir."
     },
     "module": {
-      "type": "string"
+      "type": "string",
+      "description": "Netsis modulu: Muhasebe, Lojistik - Satis, Uretim, Finans, Genel vb."
     },
     "version": {
       "type": "string",
@@ -29,11 +33,13 @@
     },
     "source_url": {
       "type": "string",
-      "format": "uri"
+      "format": "uri",
+      "description": "Makalenin portaldaki adresi (tarayicida acilabilir)."
     },
     "relative_path": {
       "type": "string",
-      "pattern": "^markdown/.+\\.md$"
+      "pattern": "^markdown/.+\\.md$",
+      "description": "knowledge-base/ klasorune goreli dosya yolu."
     },
     "language": {
       "type": "string",
@@ -41,11 +47,35 @@
     },
     "last_updated": {
       "type": "string",
-      "format": "date"
+      "format": "date",
+      "description": "Kaynaktaki surum damgasinin tarihi; damga yoksa kazima tarihi."
     },
     "tags": {
       "type": "string",
-      "description": "Noktalı virgül ile ayrılmış etiketler"
+      "description": "Noktali virgul ile ayrilmis etiketler (kirinti yolunun ara seviyeleri)."
+    },
+    "breadcrumb": {
+      "type": "string",
+      "description": "Tam kirinti yolu, ' / ' ile ayrilmis. RAG'de baglam enjeksiyonu icin: bir parcanin hangi modulun neresinden geldigini soyler."
+    },
+    "depth": {
+      "type": "string",
+      "pattern": "^[0-9]+$",
+      "description": "Agactaki derinlik (kok 0). Ust seviye makaleler genel, alt seviyeler ozeldir; siralamada agirlik olarak kullanilabilir."
+    },
+    "is_section": {
+      "type": "string",
+      "enum": ["true", "false"],
+      "description": "Bu makalenin alt basliklari var mi. Bolum sayfalarinin bir kismi neredeyse bos oldugu icin indekslemede ayirt edilmesi gerekir."
+    },
+    "doc_cid": {
+      "type": "string",
+      "description": "Kaynak sistemdeki kalici dokuman kimligi (doc_url icindeki cid). Yeniden kazima ve eslestirme icin kararli anahtar."
+    },
+    "content_sha256": {
+      "type": "string",
+      "pattern": "^([0-9a-f]{64})?$",
+      "description": "Markdown govdesinin ozeti. Hangi makalelerin yeniden parcalanip yeniden gomulmesi gerektigini bulmak icin: ozet degismediyse embedding de gecerlidir."
     }
   },
   "additionalProperties": false

@@ -1,0 +1,23 @@
+const { chromium } = require('playwright');
+(async () => {
+  const url = process.argv[2];
+  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', proxy: { server: process.env.HTTPS_PROXY }, args: ['--no-sandbox','--disable-dev-shm-usage','--disable-quic','--disable-features=EncryptedClientHello,PostQuantumKyber,UseDnsHttpsSvcb'] });
+  const ctx = await b.newContext({ ignoreHTTPSErrors: true });
+  const page = await ctx.newPage();
+  const reqs = [];
+  page.on('request', r => reqs.push([r.method(), r.url().slice(0,220)]));
+  page.on('response', async r => { if (r.request().method()==='POST') console.log('POST RESP', r.status(), r.url().slice(0,160)); });
+  await page.goto(url, { waitUntil: 'networkidle', timeout: 90000 });
+  await page.waitForTimeout(6000);
+  console.log('=== REQUESTS ===');
+  for (const [m,u] of reqs) console.log(m, u);
+  console.log('=== FRAMES ===');
+  for (const f of page.frames()) console.log('FRAME:', f.url().slice(0,300));
+  const html = await page.content();
+  require('fs').writeFileSync('rendered.html', html);
+  console.log('=== RENDERED SIZE ===', html.length);
+  const text = await page.evaluate(() => document.body.innerText);
+  console.log('=== TEXT (first 3000) ===');
+  console.log(text.slice(0,3000));
+  await b.close();
+})().catch(e => { console.error('ERR', e.message); process.exit(1); });

@@ -1,7 +1,36 @@
-# RAG pipeline generated artifacts
+# --- RAG pipeline uretilen ciktilar (main dalindan) ---
 knowledge-base/rag/chunks/*
 knowledge-base/rag/embeddings/*
 
-# Keep folder structure
+# Klasor yapisini koru
 !knowledge-base/rag/chunks/.gitkeep
 !knowledge-base/rag/embeddings/.gitkeep
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# --- Gomulu gorseller (KARAR BEKLIYOR) ---
+# 5.951 dosya, 419 MB. Depo gecmisine girdikten sonra cikarmak zordur, o yuzden
+# varsayilan olarak disarida. Markdown dosyalari bunlara goreli yolla atif
+# yapiyor; dahil etmek isterseniz asagidaki satiri silin ve commit edin, ya da
+# kendi makinenizde `python -m netsis_scraper --output knowledge-base/markdown`
+# calistirip yerel olarak uretin.
+knowledge-base/markdown/_assets/
+
+# --- Kazima araci calisma durumu ---
+# Markdown ciktisinin kendisi depoya girer (knowledge-base/markdown/),
+# ama araca ait gecici durum dosyalari girmez.
+.netsis-scraper-state.sqlite3*
+.netsis-catalog.json
+_rapor.txt
+scripts/netsis-docs/
+netsis-docs/
+
+# --- Isletim sistemi ---
+.DS_Store
+Thumbs.db

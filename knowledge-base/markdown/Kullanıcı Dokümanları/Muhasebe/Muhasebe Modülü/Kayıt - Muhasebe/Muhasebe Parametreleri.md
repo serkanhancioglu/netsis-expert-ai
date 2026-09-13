@@ -1,0 +1,132 @@
+---
+title: "Muhasebe Parametreleri"
+page_id: "24740501"
+product: "netsis-3-enterprise"
+depth: 5
+is_section: false
+is_stub: false
+breadcrumb:
+  - "Logo Netsis 3 Enterprise Bilgi Deposu"
+  - "Kullanıcı Dokümanları"
+  - "Muhasebe"
+  - "Muhasebe Modülü"
+  - "Kayıt / Muhasebe"
+  - "Muhasebe Parametreleri"
+breadcrumb_path: "Logo Netsis 3 Enterprise Bilgi Deposu / Kullanıcı Dokümanları / Muhasebe / Muhasebe Modülü / Kayıt / Muhasebe / Muhasebe Parametreleri"
+source_url: "https://polaris.logo.cloud/docs/netsis-3-enterprise/detail/ZXh0ZXJuYWw_Y2lkPWE1OWE5OTU2LWM0NzctNDQ5YS04Y2UxLTIxYzE1MGM3MDMyZSZsaW5rPTViODk5MmJmLThlNWItNGEwYy1iOTY5LTA4ZGVkMDRmMTU2OSZ0ZW5hbnRJZD1jZGQ4N2UxMy0zMDA5LTRkZDEtYTViOC0yYTAwNWMwZTU4ZGEmaGlkZU5hbWU9VHJ1ZQ"
+doc_url: "external?cid=a59a9956-c477-449a-8ce1-21c150c7032e&link=5b8992bf-8e5b-4a0c-b969-08ded04f1569&tenantId=cdd87e13-3009-4dd1-a5b8-2a005c0e58da&hideName=True"
+slug: "muhasebe-parametreleri_24740507_24740501.html"
+source_version: "2022-09-28T13:24:01.310+03:00"
+source_bytes: 297682
+fetched_at: "2026-09-13T04:12:57+00:00"
+generator: "netsis-scraper 1.0.0"
+---
+# Muhasebe Parametreleri
+
+Muhasebe Parametreleri, Muhasebe Bölümü'nde, "Kayıt/Muhasebe Modülü" menüsünün altında yer alır. Muhasebe Parametreleri, Muhasebe Modülü ile ilgili işlemlere başlamadan önce bazı tanımlamaların yapılmasını sağlayan bölümdür.
+
+Muhasebe Parametreleri ekranı; Genel, Seviye Takibi, Yevmiye, Kullanıcı Tanımlı Sahalar, Dövizli Muhasebe, Fiş Bazında Yuvarlama Farkı sekmelerinden oluşur.
+
+**Genel**
+
+![](../../../../_assets/7fd88fc67cdeaf1d7da9.png)
+
+Muhasebe Parametreleri ekranı Genel sekmesinde yer alan alanlar ve içerdiği bilgiler şunlardır:
+
+| Muhasebe Parametreleri Ekranı |  |
+| --- | --- |
+| Mali Yıl Başlangıç Ayı | Şirketin durumuna göre mali yılın Ocak-Aralık aylarını kapsaması durumunda 01 ay kodunun girilmesi gerekir. "Tütün" sektörü gibi bazı sektörlerde mali yıl, Haziran ayında başlar ve diğer yılın Mayıs ayında biter. Bu durumda, değerin 06 olarak girilmesi gerekir. İlgili tarih, programın kullanılmaya başlandığı tarih anlamında değildir. Şirket "Logo Netsis" programıyla çalışmaya hangi ayda başlarsa başlasın parametrenin 01 olması gerekir. |
+| Yabancı Hesap İsmi | Hesap planının "Türkçe" dışında diğer bir yabancı dil (Örneğin; İngilizce) kullanılarak oluşturulması istendiğinde kullanılan parametredir. Parametre işaretlendiğinde; "Muhasebe" modülündeki raporların istenmesi halinde, sadece İngilizce olmak üzere yabancı dil başlığı ile rapor alınabilir. |
+| Fark Veren Fişlerden Çıkılmasın | Yevmiye fişindeki borç-alacak toplamları eşitliği kontrol edildikten sonra, borç-alacak eşitsizliği olması halinde fişten çıkılmasının engellenmesi için kullanılan parametredir. Parametre işaretlenmediğinde program; bakiyesi tutmayan fişlerden çıkarken uyarı verse de, fişten çıkılmasına izin verir. |
+| Birimsiz Hesaplarda Miktar Sahası Atlansın | Muhasebe → Kayıt → Hesap Planı → “Ölçü Birimi” alanında herhangi bir kayıt bulunmayan hesapların, yevmiye fiş kaydı sırasında "Miktar" alanlarının boş bırakılarak, direkt "Tutar" alanına geçilmesini sağlayan parametredir. Bu parametrenin işaretlenmemesi halinde; yevmiye fişi kayıtlarında girilen fiş açıklamasından sonra her hesap kodunda "Miktar" alanına kayıt girilmesi beklenir. |
+| Fişlerde Evrak Tarihi Sorulsun | Yevmiye fiş kaydı sırasında, her bir kayıt için satır bazında evrak tarihinin sorgulanmasını sağlayan parametredir. Ön muhasebeden entegre gelen kayıtlara, program tarafından evrak tarihi aktarılır. Elle girilecek yevmiye fiş kayıtlarına evrak tarihi girilmesi istendiğinde işaretlenmesi gerekir. |
+| Şubeli Muhasebe Sistemi | "Şubeli Muhasebe Sistemi" ile hem şube hem de merkezin kayıtları ayrı ayrı tutulur ve şubelerden sadece kendi işlemlerine ait raporlar alınır. Merkezde ise, sadece merkeze ait raporlar ve listeler alınır. İstendiğinde, "Şubeler Dahil" raporlar ve listeler alınır. "Şubeli Muhasebe" sistemine yıl ortasında geçilemeyeceğine dikkat edilmesi gerekir. Bunun nedeni; normal uygulamada şubelerden girilen fiş kayıtlarının merkezden kaydedilmiş gibi kayda alınması ve merkez ile şube kayıtlarının ayrılamamasıdır. "Şubeli Muhasebe" sistemine geçildiğinde ise; merkez ve şubelerden kaydedilen kayıtlar, kayıt yerlerine göre ayrı tutulur ve birbirinden ayrılabilir. Bu sistemde birden fazla aktif işletme varsa, program otomatik olarak "Şubeli Muhasebe" sistemini aktif hale getirir. Tek bir işletme ve birden fazla şube varsa, program bu sefer otomatik değil kullanıcının tercih edeceği parametreye göre çalışır. |
+| Şube Bazında Fiş Numarası Takibi | Fiş numaraları, herhangi bir değişiklik yapılmadığında 1 rakamından başlar ve sıra ile artarak devam eder. Bu durumda, şubeli çalışılan yerlerde fiş numaraları bazında ayrım yapılamaz. Parametre işaretlendiğinde, "Entegrasyon Modülünden" yapılan aktarımlarda, başlangıç fiş numarası olarak şube kodları baz alınır. **Örneğin,** entegrasyonda hem Merkez, hem Şube-1 hem de Şube-2 kayıtları olduğu varsayıldığında, Şube-1’e ait yevmiye fişlerinin ilk iki karakteri 01, Şube-2’nin ise 02 olacak şekilde aktarılır. Merkezden girilen fişlerin ilk iki karakteri 00 değerini alır. Program, ilk iki karaktere göre en büyük fiş numarasını bulup bir rakam arttırarak yevmiye fişlerini oluşturur. Şubelerden elle kaydedilen yevmiye fişlerinde, şube kodları fiş numaralarının ilk iki karakteri olarak otomatik şekilde ekrana getirilir. |
+| Sayısal Sahalar Alfa Numeric Basılsın | Sayısal sahaların basım formatının "Alfa Numeric sahalar" gibi yani sola dayalı olarak izlenmesi istendiğinde işaretlenmesi gereken parametredir. |
+| Gün Bazında Fiş Numarası Takibi | Parametre işaretlendiğinde, "Yevmiye Fiş Girişi" bölümüne girildiğinde "Fiş Okuma" ekranı görüntülenir. Bu ekranda belirlenen gün sayesinde, "Fiş Numarası" alanına girilen gün aktarılır. |
+| Muhasebeye Aktarılan Fişlerin Açıklamalarında Geçen Belge Numaralarındaki Sıfırlar Çıkarılsın | Çek, Senet, Fatura gibi belgelerde geçen sıfırların açıklamalarda basılmaması için kullanılan parametredir. Çek ve Senet açıklamalarında "Vade Tarihi" gibi özel bilgilerin basılması istendiğinde; Yardımcı Programlar → Kayıt → "[Netsis Cari Muhasebe Açıklama Kayıtları](<../../../Genel/Yardımcı Programlar/Kayıt - Yardımcı Programlar/Netsis Cari Muhasebe Açıklama Kayıtları.md>)" ile girilen açıklamalar özelleştirilebilir. |
+| ![](../../../../_assets/39d77b8716226638d9ce.jpg) Tamam | Girilen bilginin onaylanmasını sağlayan butondur. |
+| ![](../../../../_assets/973111d004995dca0113.jpg) İptal | Girilen bilgiden vazgeçilmesi halinde ekrandan çıkmak için kullanılan butondur. |
+
+**Seviye Takibi**
+
+**![](../../../../_assets/ef9a2c16d003511532ef.png)**
+
+Muhasebe Parametreleri ekranı Seviye Takibi sekmesinde yer alan alanlar ve içerdiği bilgiler şunlardır:
+
+| Muhasebe Parametreleri Ekranı |  |
+| --- | --- |
+| Seviye Takibi Yapılacak | Oluşturulacak hesap planı standart olarak "Ana-Grup-Grup- ...- Muavin" ya da "Ana-Muavin" bazında ve her seviyenin kod uzunluklarının tüm hesaplar için aynı olacak şekilde kullanılmasını sağlayan parametredir. Standart forma uymadan çeşitli seviyelerde ve her seviyenin uzunlukları hesap bazında değişken olabilecek şekilde kullanılması istendiğinde işaretlenmemesi gerekir. Seviye takibi yapıldığı durumlarda, hesap planına kaydedilecek hesap kodlarının belli bir düzene uygunluğu program tarafından kontrol edilir ve seviye formatı hesap planından izlenir. Bu düzenin ne şekilde olacağı kullanıcı tarafından belirlenir. Seviye takibi yapılmayacağı durumlarda, kaydedilecek hesap kodlarının herhangi bir düzende olması gerekmez. Seviyeli çalışmada, entegre programın herhangi bir bölümünden "Muhasebe Hesap Kodu" yazılması gerektiğinde, program kullanıcıya kolaylık sağlar. Kullanıcı, hesap kodunu doğrudan (sadece rakamları) yazarak (eksi ![(minus)](../../../../_assets/1b0d15e570bf80d3a5bb.svg) işaretlerini koymadan) girdiğinde, aralarındaki - işaretleri, belirlenen seviyelere göre rakamların arasına program tarafından otomatik olarak yerleştirilir. Seviye takibi yapılmayacaksa, program tarafından girilen hesap kodunun herhangi bir düzene uygunluğu kontrol edilmez. |
+| Kaç Seviye Tanımlanacak? | "Seviye Takibi Yapılacak" parametresi işaretlendiğinde aktif hale gelen parametredir. "Seviye Takibi Yapılacak" parametresinin işaretlenmesi ile, "Kaç Seviye Tanımlanacak?" ve "Seviye Sayıları" parametreleri ile devam edilir. Kullanılacak hesap planında Ana, Grup ve Muavin hesaplarının kaydedilmesi istenen seviye sayısı girilir. Bu sayıyı belirlerken dikkat edilmesi gereken noktalar şöyledir; ana hesap ve muavin hesap seviyeleri bir tanedir. Grup hesap seviyeleri çoğaltılabilir. Hiç grup hesap açılmayacak olsa bile, bir adet seviye ana hesaplar için, bir adet seviye muavin hesaplar için en az iki adet seviye girilmesi zorunludur. Bunun sebebi, program kullanımı sırasında ana hesaplara doğrudan kayıt girilememesinden kaynaklanır. Yevmiye kayıtları sadece muavin hesaplar bazında yapılır. En fazla 10 seviye sayısı tanımlanabilir. |
+| Seviye Sayısı (1..10) | "Kaç Seviye Tanımlanacak?" parametresinde tanımlanan seviye sayısı kadar, her seviyenin hesap kodları içindeki uzunluklarının kaç rakam olacağının belirlendiği parametredir. İlk alana ana hesapların, sonraki alanlara grup hesaplarının ve en son alana da muavin hesapların standart (olması istenen) uzunluklarının yazılması gerekir. Uzunlukları yazarken hesap kodu içindeki - işaretlerinin düşünülmemesi gerekir. Sadece, ilgili seviyenin rakam olarak uzunluğunun yazılması yeterlidir. Tüm seviyeler için tanımlanan uzunlukların toplamı artı ![(plus)](../../../../_assets/8bc1079dc378a6219e99.svg) , eksi ![(minus)](../../../../_assets/1b0d15e570bf80d3a5bb.svg) işaretlerinin 20 karakteri geçmemesi gerekir. **Örneğin** Seviye sayısı 3, Seviyeleme XXX-XX-XXX düzeninde ise Ana hesaplar için ilk alana 3, Grup hesaplar için ikinci alana 2, Muavin hesapları için üçüncü alana 3 uzunluğunun kaydedilmesi gerekir. Seviye takibinin işaretlenmesi durumunda, hesap planı kaydı sırasında program tarafından yapılacak kontroller, yukarıdaki örneğe göre aşağıdaki şekilde özetlenir: Herhangi bir grup veya muavin hesap tanımlamadan önce, XXX ana hesabının tanımlanması gerekir. Ana hesap tanımlı olmadığı sürece, program bunun alt hesaplarının açılmasına izin vermez. Grup hesap tanımlamak için XXX-XX düzeninin kullanılması gerekir. Ana hesap tanımlandıktan sonra, grup hesap tanımlanmadan muavin hesap tanımlanabilir. Muavin hesap tanımlarken grup hesabı tanımlanmışsa; XXX-XX-XXX grup hesabı tanımlanmadan, XXX-XX düzeni kullanılabilir. XXX ana hesabı açıldıktan sonra, bu hesaba herhangi bir kayıt işlemek için, ilgili ana hesaba ait en az bir muavin hesabın tanımlanması gerekir. Hesap kodları kaydedilirken eksi ![(minus)](../../../../_assets/1b0d15e570bf80d3a5bb.svg) işaretlerinin hiç yazılmadan, yan yana rakamların yazılması gerekir. Seviye düzenine göre eksi ![(minus)](../../../../_assets/1b0d15e570bf80d3a5bb.svg) işaretleri, program tarafından gerekli yerlere yerleştirilir. **Örneğin** Parametre girişinde, Seviye Takibi Yapılacak "İşaretli", Kaç Seviye Tanımlanacak kısmı 3, 1.Seviye Sayısı 3, 2.Seviye Sayısı 2, 3. Seviye Sayısı 3 girildiği varsayıldığında, Kasa hesabı olarak açılacak 100 hesabı için grup hesap tanımlama gereksinimi olmayabilir. Bu durumda kasa hesabının tanımlaması şu şekilde olacaktır; 100 (Ana) KASA HESABI, 100-01 (Muavin) NAKİT KASASI şeklinde yapılması istenebilir. Bunun haricinde, bankaların kodlanacağı hesaplarda grup hesap kullanılması gerekebilir. **Örneğin** 102 (Ana) BANKALAR HESABI, 102-01 (Grup) İŞ BANKASI HESABI, 102-01-001 (Muavin) KORDON ŞUBESİ 856578 numaralı hesap şeklinde hesap tanımlaması yapılabilir. "Seviye Takibi Yapılacak" parametresi boş bırakıldığında, ana hesaplar istenen uzunlukta ve her biri için değişik uzunluklarda tanımlanabilir (XX, XXXX vb.) İçinde eksi ![(minus)](../../../../_assets/1b0d15e570bf80d3a5bb.svg) işareti bulunmayan her hesap, program tarafından ana hesap olarak algılanır. Seviyeli uygulamada olduğu gibi, ana hesap bazında yevmiye kaydı yapılamayacağı için, her ana hesaba en az bir muavin hesap açılması gerekir. Seviye takibinin yapılmadığı durumlarda, grup ve muavin hesapların uzunlukları da değişiklik gösterebilir. Bu tür hesapları tanımlarken, gerekli yerlere eksi ![(minus)](../../../../_assets/1b0d15e570bf80d3a5bb.svg) işaretlerini kullanıcının yerleştirmesi gerekir. Grup ve muavin hesapları tanımlanmadan önce, ana hesabın tanımlanması burada da zorunludur. |
+| ![](../../../../_assets/39d77b8716226638d9ce.jpg) Tamam | Girilen bilginin onaylanmasını sağlayan butondur. |
+| ![](../../../../_assets/973111d004995dca0113.jpg) İptal | Girilen bilgiden vazgeçilmesi halinde ekrandan çıkmak için kullanılan butondur. |
+
+**Yevmiye**
+
+![](../../../../_assets/bea75c993004d6f88c95.png)
+
+Muhasebe Parametreleri ekranı Yevmiye sekmesinde yer alan alanlar ve içerdiği bilgiler şunlardır:
+
+| Muhasebe Parametreleri Ekranı |  |
+| --- | --- |
+| Fişlerde Referans Kodu Sorulsun | "Yevmiye Fiş Girişi" sırasında, girilen hareketleri belli masraf merkezlerine yönlendirmek için, "Referans Kodu" sorgulamasının yapılması için kullanılan parametredir. İşaretlendiğinde; fiş kayıtlarındaki hareketlerin hesap kodları aynı olsa bile, referans kodu bazında ayrı gruplarda toplama ve grupların ayrı ayrı dökümlerini almayı sağlar. **Örneğin;** Personel giderleri ile ilgili bir gider hesabının olduğu varsayıldığında ve kullanıcı bir hesap içinde ayrı departmanların giderlerini ayrı gruplar altında toplayıp, rapor amaçlı izlemek istediğinde; Personel giderleri ile ilgili fiş kayıtlarının oluşturulması sırasında görüntülenen "Referans Kodu" ekranında, hangi departmana ait masraf varsa o departmanın kodunu yazması gerekir. Rehber butonu ![](../../../../_assets/088477bb321d1b20c939.jpg) ile referans kodlarına ulaşılır. Alınacak raporlarda, girilen referans kodlarına göre ayrı departmanların aynı hesap altındaki giderleri ayrı ayrı izlenebilir. Muhasebeye entegre çalışılıyorsa ve parametre işaretlenmişse, ön muhasebe bölümlerinden yapılacak kayıtlar için, her bölümün kendi kaydı sırasında "Referans Kodu" sorgulanır. Böylece, ön muhasebeden genel muhasebeye aktarılan kayıtlar, kaydedilecek referans kodlarıyla birlikte işlenir. Kullanılacak "Referans Kodları" Muhasebe → Kayıt → "[Referans Kodu Kayıtları](https://polaris.logo.cloud/docs/netsis-3-enterprise/detail/external%253Fcid%253D244dade3-8113-4018-ab66-65777d788d34%2526link%253De385e82f-8ca4-4092-9096-b8e1c6ba8e18%2526tenantId%253Dcdd87e13-3009-4dd1-a5b8-2a005c0e58da%2526hideName%253DTrued)" bölümünden tanımlanması gerekir. Tanımlanmayan referans koduna herhangi bir kayıt girilmez. Program, “Referans Kodu Tanımlı Değil” şeklinde uyarı vererek ilgili kaydın tamamlanmasını engeller. |
+| Referans Sorulacak Hesap Tipleri | "Fişlerde Referans Kodu Sorulsun" parametresinin işaretlenmesi ile aktif hale gelen parametredir. Hesap planında tanımlanan tüm hesaplar için "Referans Kodu" sorgulamasının yapılması istenmeyebilir. Sorgulanan hesap tipleri arasından referans kodu sorulması istenen hesap tipleri işaretlenir. |
+| Kasa Tahsil/Tediye Muavin | Kasa Tahsil ve Kasa Tediye fişlerinin elle düzenlendiği durumlarda, fişlerin otomatik kapatılmasında kullanılan tuş için gerekli kasa muavin hesap kodlarının girildiği alanlardır. Bu alanlara kayıt girişi yapılmadığında, yevmiye fiş girişlerinde hesap kapama işlemi yapılamaz. İlgili alanlara, muhasebe hesap planında "Nakit Kasası" için açılan muavin hesap kodlarının girilmesi gerekir. Tahsil ve Tediye kayıtları için her iki alana da aynı muavin hesap kodu girişi yapılabilir. Rehber butonu ![](../../../../_assets/088477bb321d1b20c939.jpg) ile, muhasebe hesap kodları arasından seçim yapılır. |
+| ![](../../../../_assets/39d77b8716226638d9ce.jpg) Tamam | Girilen bilginin onaylanmasını sağlayan butondur. |
+| ![](../../../../_assets/973111d004995dca0113.jpg) İptal | Girilen bilgiden vazgeçilmesi halinde ekrandan çıkmak için kullanılan butondur. |
+
+**Kullanıcı Tanımlı Sahalar**
+
+![](../../../../_assets/c37e0f910489b8b5a254.png)
+
+Muhasebe Parametreleri ekranı Kullanıcı Tanımlı Sahalar sekmesinde yer alan alanlar ve içerdiği bilgiler şunlardır:
+
+| Muhasebe Parametreleri Ekranı |  |
+| --- | --- |
+| Sayısal Saha Başlıkları | Hesap planı kayıtlarında rapor bazlı kullanılması için sekiz adet 25 karakter uzunluğunda sayısal ek saha tanımlaması yapılmasını sağlayan alanlardır. Sahaların başlıkları bu alandan tanımlanır. Hesap planı kayıtlarında, bu sahalarda girilen başlıkların karşılığı olan bilgiler girilir. Boş bırakılan sahalar, kullanılması istenmeyen sahalar olarak nitelenir. Rapor Modülü → Raporlar → "[Muhasebe-Entegrasyon Raporları](<../../../Genel/Rapor/Muhasebe-Entegrasyon Raporları/index.md>)" bölümünden, girilen sahaların listeleri alınır. Muhasebe hesap planı kayıtlarında, bu başlıktaki sahalara ait girişler, "Ek Bilgiler" sekmesi yardımı ile yapılır. |
+| Alfa Sayısal Saha Başlıkları | Hesap planı kayıtlarında rapor bazlı kullanılması için sekiz adet 25 karakter uzunluğunda alfa nümerik ek saha tanımlaması yapılmasını sağlayan alanlardır. Sahaların başlıkları bu alandan tanımlanır. Hesap planı kayıtlarında, bu sahalarda girilen başlıkların karşılığı olan bilgiler girilir. Boş bırakılan sahalar, kullanılması istenmeyen sahalar olarak nitelenir. Rapor Modülü → Raporlar → "[Muhasebe-Entegrasyon Raporları](<../../../Genel/Rapor/Muhasebe-Entegrasyon Raporları/index.md>)" bölümünden, girilen sahaların listeleri alınır. Muhasebe hesap planı kayıtlarında, bu başlıktaki sahalara ait girişler, "Ek Bilgiler" sekmesi yardımı ile yapılır. |
+| ![](../../../../_assets/39d77b8716226638d9ce.jpg) Tamam | Girilen bilginin onaylanmasını sağlayan butondur. |
+| ![](../../../../_assets/973111d004995dca0113.jpg) İptal | Girilen bilgiden vazgeçilmesi halinde ekrandan çıkmak için kullanılan butondur. |
+
+Dövizli Muhasebe
+
+![](../../../../_assets/8d61eddd23a6a042a463.png)
+
+Muhasebe Parametreleri ekranı Dövizli Muhasebe sekmesinde yer alan alanlar ve içerdiği bilgiler şunlardır:
+
+| Muhasebe Parametreleri Ekranı |  |
+| --- | --- |
+| TL Muhasebe | Muhasebe kayıtlarının sadece TL olarak takip edilmesi için kullanılan parametredir. Parametre işaretlendiğinde, "Hesap Planı" ekranında "Döviz Bilgileri" sekmesi yer almaz. Bu durumda, Muhasebe → İşlemler → "Döviz Çevrim" bölümü çalışmaz ve hesapların dövizle değerlenmiş hali ile enflasyon karşısındaki durumları görüntülenmez. |
+| IAS29 | Enflasyon muhasebesi mantığı ile işlem yapılması için kullanılan parametredir. Enflasyon muhasebesi ile ilgili detaylı bilgi için; Muhasebe → Ekler → "[Ek-1 Enflasyon Muhasebesi](<../Ekler - Muhasebe/Ek-1 Enflasyon Muhasebesi/index.md>)" dokümanına bakılabilir. |
+| FAS52 | Dövizli muhasebe takibi yapılması için kullanılan parametredir. Hesap planı girişinde, her hesap için döviz takibinin yapılıp yapılmayacağı ayrıca sorgulanır. "Yevmiye Fiş Girişi" bölümünden elle yapılan girişlerde; diğer modüllerden oluşturulan döviz tutarları muhasebe entegrasyonundan izlenerek, muhasebeye aktarma yapıldıktan sonra fiş ve hesap bazında raporlanır. "FAS52" parametresi, "Dövizli Muhasebe Uygulamasının" yapılması için de kullanılır. Parametreye bağlı olarak "Hesap Planı" kaydı sırasında, dövizli muhasebe için önem kazanan alanlar sorgulanır. Parametre işaretlenmediğinde, "Dövizli Muhasebe Uygulaması" kullanılamaz. |
+| TFRS | Türkiye Finansal Raporlama Standartlarına uygun finansal tablo hazırlanması için kullanılan parametredir. Muhasebe parametre ekranında TFRS/UFRS için gerekli olan parametreler tanımlanır. "Dövizli Muhasebe" sekmesinde aşağıdaki gibi "TFRS" seçeneği seçilir. Peşine indirgeme hesaplamasında kullanılacak olan Aylık/Yıllık Oran, Yıl/Gün Sayısı, "Döviz" modülünde tanımlanan Aylık/Yıllık Oran bilgisinin girileceği Oran Döviz Tipi ve "Peşine İndirgenecek Minimum Gün Sayısı" tanımlamalarının yapılması gerekir. ![](../../../../_assets/fce6913b350bcdd2960f.png) |
+| Aylık Oran | TFRS ve IAS29 parametreleri seçildiğinde aktif hale gelen seçenektir. Detaylı açıklama, "TFRS" seçenek açıklamasında yer alır. |
+| Yıllık Oran | TFRS ve IAS29 parametreleri seçildiğinde aktif hale gelen seçenektir. Detaylı açıklama, "TFRS" seçenek açıklamasında yer alır. |
+| Yıl Gün Sayısı | TFRS ve IAS29 parametreleri seçildiğinde aktif hale gelen seçenektir. Detaylı açıklama, "TFRS" seçenek açıklamasında yer alır. |
+| Oran Döviz Tipi | TFRS ve IAS29 parametreleri seçildiğinde aktif hale gelen seçenektir. Detaylı açıklama, "TFRS" seçenek açıklamasında yer alır. Rehber butonu ![](../../../../_assets/088477bb321d1b20c939.jpg) ile, tanımlı döviz tiplerine ulaşılır. |
+| Peşine İndirgenecek Minimum Gün Sayısı | TFRS ve IAS29 parametreleri seçildiğinde aktif hale gelen seçenektir. Detaylı açıklama, "TFRS" seçenek açıklamasında yer alır. |
+| Enflasyon K/Z Parasal Hesaplardan | Enflasyon muhasebesinin kullanıldığı durumlarda işlev kazanan bir parametredir. Enflasyon muhasebesi ile ilgili detaylı bilgi için; Muhasebe → Ekler → "[Ek-1 Enflasyon Muhasebesi](<../Ekler - Muhasebe/Ek-1 Enflasyon Muhasebesi/index.md>)" dokümanına bakılabilir. |
+| Enflasyon K/Z Parasal Olmayan Hesaplardan | Enflasyon muhasebesinin kullanıldığı durumlarda işlev kazanan bir parametredir. Enflasyon muhasebesi ile ilgili detaylı bilgi için; Muhasebe → Ekler → "[Ek-1 Enflasyon Muhasebesi](<../Ekler - Muhasebe/Ek-1 Enflasyon Muhasebesi/index.md>)" dokümanına bakılabilir. |
+| Enflasyon Düzeltme Hesap Alacak | Enflasyon muhasebesinin kullanıldığı durumlarda işlev kazanan bir parametredir. Enflasyon muhasebesi ile ilgili detaylı bilgi için; Muhasebe → Ekler → "[Ek-1 Enflasyon Muhasebesi](<../Ekler - Muhasebe/Ek-1 Enflasyon Muhasebesi/index.md>)" dokümanına bakılabilir. |
+| Enflasyon Düzeltme Hesap Borç | Enflasyon muhasebesinin kullanıldığı durumlarda işlev kazanan bir parametredir. Enflasyon muhasebesi ile ilgili detaylı bilgi için; Muhasebe → Ekler → "[Ek-1 Enflasyon Muhasebesi](<../Ekler - Muhasebe/Ek-1 Enflasyon Muhasebesi/index.md>)" dokümanına bakılabilir. |
+| Parasal Kar Hesabı | Enflasyon muhasebesinin kullanıldığı durumlarda işlev kazanan bir parametredir. Enflasyon muhasebesi ile ilgili detaylı bilgi için; Muhasebe → Ekler → "[Ek-1 Enflasyon Muhasebesi](<../Ekler - Muhasebe/Ek-1 Enflasyon Muhasebesi/index.md>)" dokümanına bakılabilir. |
+| Parasal Zarar Hesabı | Enflasyon muhasebesinin kullanıldığı durumlarda işlev kazanan bir parametredir. Enflasyon muhasebesi ile ilgili detaylı bilgi için; Muhasebe → Ekler → "[Ek-1 Enflasyon Muhasebesi](<../Ekler - Muhasebe/Ek-1 Enflasyon Muhasebesi/index.md>)" dokümanına bakılabilir. |
+| ![](../../../../_assets/39d77b8716226638d9ce.jpg) Tamam | Girilen bilgilerin onaylanmasını sağlayan butondur. |
+| ![](../../../../_assets/973111d004995dca0113.jpg) İptal | Girilen bilgilerden vazgeçilmesi halinde ekrandan çıkmak için kullanılan butondur. |
+
+**Fiş Bazında Yuvarlama Farkı**
+
+Entegrasyon aktarımı ile oluşan ya da elle girilen muhasebe yevmiye fişlerinde, özellikle ondalıklardan kaynaklanan bakiye farkının program tarafından otomatik olarak kapatılmasını sağlayan sekmedir.
+
+![](../../../../_assets/cff6afb2ca24ddb0ec6b.png)
+
+Muhasebe Parametreleri ekranı Fiş Bazında Yuvarlama Farkı sekmesinde yer alan alanlar ve içerdiği bilgiler şunlardır:
+
+| Muhasebe Parametreleri Ekranı |  |
+| --- | --- |
+| Maksimum Yuvarlama Fark Tutarı | Fiş bazında bulunan farkın, yuvarlama farkı olarak kabul edilmesi için sahip olacağı maksimum değerin girildiği parametredir. Girilen tutardan daha fazla bakiyesi olan fişlerde; bakiye, yuvarlama farkı olarak kabul edilmeyerek program tarafından kapatılmaz. Bu alana mutlaka bir değer girilmesi gerekir. Girilen değerin, 1 TL ve altı gibi küçük bir değer olması gerekir. Bu şekilde girilen küçük bir değer, yuvarlamadan ve ondalıklardan kaynaklanan farkları çözümler. Maliyet, personel vb. büyük mahsuplarda; 1 TL ve üzeri olan, kabul edilebilir ve yuvarlama hesaplarına aktarılması istenen farklar oluşabilir. Bu farkların otomatik kapatma yerine kontrollü olarak kapatılması gerekir. |
+| Fiş Bazında Yuvarlama Farkını İşleme Yöntemi | Yevmiye fişinde bulunan yuvarlama farkının, ilgili fişe işlenmesi istenen yöntemin seçildiği parametredir. Yuvarlama farklarını fişe işlemek için iki yöntem kullanılır. Bu yöntemler “Yuvarlama Farkı Hesabına Yaz” ve “Hesap Kodlarını Veya Maskelerini Kullanarak Bulduğun İlk Hesaba Yaz” **Yuvarlama Farkı Hesabına Yaz** seçeneğinin işaretlenmesi halinde; fişte bulunan yuvarlama farkı, fişe ayrı bir satır olarak işlenir. Bu satırda kullanılacak muhasebe kodları ise “Yuvarlama Farkının Yazılacağı Hesap Kodu” bölümünde belirlenir. **Hesap Kodlarını veya Maskelerini Kullanarak Bulduğun İlk Hesaba Yaz** seçeneğinin işaretlenmesi halinde; fişte bulunan yuvarlama farkı, fişte mevcut olan bir satıra ilave edilir. Hangi satıra ilave edileceği "Yuvarlama Farklarının Yazılacağı Hesap Kodları veya Maskeleri" bölümünde belirlenir. Hesap kodu ya da maskesi belirtilmediyse, yuvarlama farkı fişte bulunan ilk satıra eklenir. Yuvarlama farkının **alacak** olarak işlenmesi gerektiğinde; bulunan ilk **alacak** satırına, **borç** olarak işlenmesi gerektiğinde ise; bulunan ilk **borç** satırına ilave edilir. |
+| Yuvarlama Farkının Yazılacağı Hesap Kodu veya Maskeleri | Yuvarlama farkı işlenirken kullanılacak yöntem olarak “Hesap Kodlarını veya Maskelerini Kullanarak Bulduğun İlk Hesaba Yaz” seçeneğinin işaretlendiği durumlarda aktif hale gelen bölümdür. Burada 10 adet hesap kodu/hesap maskesi sorgulanır. Yevmiye fişinde fark bulunması halinde; program, burada belirlenen hesapların ilgili fişte olup olmadığını ve borç/alacak bakiyelerini kontrol eder. Yani, fişte yuvarlama farkının alacak olarak işlenmesi gerekiyorsa, parametrede belirlenen hesabın da fişte alacak olarak çalışması gerekir. Fişte, bu hesaba/maskeye uyan kayıt bulunursa, yuvarlama farkı ilgili satıra eklenir. İlk hesabın fişte bulunmaması ya da borç/alacak olarak uygun çalışmaması halinde parametrede bulunan ikinci hesap kodu/maskesine ilerlenir. Bu şekilde, sırayla 10 hesap kontrol edilir. Belirlenen 10 hesap kodu ya da maskesinden hiçbiri fişte girilen satırlar ile uyuşmuyorsa, fişteki ilk borç/alacak satırına ondalık fark tutarı işlenir. |
+| ![](../../../../_assets/39d77b8716226638d9ce.jpg) Tamam | Girilen bilgilerin onaylanmasını sağlayan butondur. |
+| ![](../../../../_assets/973111d004995dca0113.jpg) İptal | Girilen bilgilerden vazgeçilmesi halinde ekrandan çıkmak için kullanılan butondur. |
